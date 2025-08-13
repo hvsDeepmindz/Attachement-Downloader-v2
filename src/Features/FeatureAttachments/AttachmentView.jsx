@@ -13,9 +13,8 @@ import APIErrorView from "../../Components/Error/APIErrorView";
 import { Modal } from "antd";
 
 const AttachmentView = () => {
-  const { title: value } = useParams();
+  const { title: folderName } = useParams();
   const location = useLocation();
-  const isAttachmentPage = location.pathname.includes("/attachments/");
 
   const {
     showDashboard,
@@ -29,8 +28,6 @@ const AttachmentView = () => {
     handlePageChange,
     handleItemsPerPageChange,
     updateTableData,
-    selectedAttachment,
-    handleAttachmentClick,
     searchText,
     handleSearchTextChange,
     handleSearchSubmit,
@@ -38,42 +35,78 @@ const AttachmentView = () => {
     previewAttachment,
     handleOpenAttachmentPreview,
     handleCloseAttachmentPreview,
+    attachmentFolderData,
+    fetchAttachmentFolderData,
   } = Handlers();
 
-  const finalTitle = selectedAttachment?.title || "Attachments";
-
   useEffect(() => {
-    fetchAttachmentData(decodeURIComponent(value), currentPage, itemsPerPage);
-  }, [value, currentPage, itemsPerPage]);
-
-  useEffect(() => {
-    updateTableData(attachmentTableData, "attachment");
-  }, [attachmentTableData]);
-
-  useEffect(() => {
-    const decodedValue = decodeURIComponent(value);
-    if (!selectedAttachment || selectedAttachment.value !== decodedValue) {
-      const matched = AttachmentData.find(
-        (item) => item.value === decodedValue
-      );
-      if (matched) handleAttachmentClick(matched);
+    if (!attachmentFolderData || attachmentFolderData.length === 0) {
+      fetchAttachmentFolderData();
     }
   }, []);
 
+  useEffect(() => {
+    if (folderName && attachmentFolderData.length > 0) {
+      fetchAttachmentData(decodeURIComponent(folderName));
+    }
+  }, [attachmentFolderData, folderName, currentPage, itemsPerPage]);
+
+  const renderModalContent = () => {
+    if (!previewAttachment) return null;
+    const fileUrl = `${
+      import.meta.env.BASE_URL
+    }/attachments/${encodeURIComponent(previewAttachment.name)}`;
+
+    const ext = previewAttachment.name.split(".").pop().toLowerCase();
+
+    return (
+      <div>
+        <h3 className="mb-2 font-semibold">{previewAttachment.name}</h3>
+        <p className="mb-4 text-gray-500 text-sm">
+          Size: {(previewAttachment.size / 1024).toFixed(2)} KB
+          {previewAttachment.last_modified &&
+            ` • Modified: ${new Date(
+              previewAttachment.last_modified
+            ).toLocaleString()}`}
+        </p>
+
+        {ext === "pdf" ? (
+          <iframe
+            src={fileUrl}
+            width="100%"
+            height="600"
+            style={{ border: 0 }}
+          />
+        ) : ["png", "jpg", "jpeg", "gif", "bmp", "webp"].includes(ext) ? (
+          <img
+            src={fileUrl}
+            alt={previewAttachment.name}
+            className="w-full h-auto object-contain"
+          />
+        ) : (
+          <a
+            href={fileUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-600 underline"
+          >
+            View or Download {previewAttachment.name}
+          </a>
+        )}
+      </div>
+    );
+  };
+
   const columns = [
-    {
-      header: "Sender Email",
-      accessor: (row) => row.sender_mail,
-    },
+    // { header: "Sender Email", accessor: (row) => row.sender_mail },
     {
       header: "Attachment",
       accessor: (row, index) => (
         <button
-          className={`flex items-center justify-start border-[1px] border-[#f2f2f2] px-[2rem] 
-          py-[0.3rem] rounded-full ${
+          className={`flex items-center justify-start border px-[2rem] py-[0.3rem] rounded-full ${
             index % 2 === 0 ? "bg-[#E4E2F2]" : "bg-[#f1f1f1]"
           }`}
-          onClick={() => handleOpenAttachmentPreview(row)}
+          // onClick={() => handleOpenAttachmentPreview(row)}
         >
           <img
             src={`${import.meta.env.BASE_URL}/Media/doc.png`}
@@ -91,7 +124,7 @@ const AttachmentView = () => {
           <div className="flex items-center gap-3">
             {downloadingAttachmentId === row.id ? (
               <div
-                className={`border-[1px] border-[#d2d2d2] w-[30px] h-[30px] rounded-md flex justify-center items-center ${
+                className={`border w-[30px] h-[30px] rounded-md flex justify-center items-center ${
                   index % 2 === 0 ? "bg-[#E4E2F2]" : "bg-white"
                 }`}
               >
@@ -101,9 +134,8 @@ const AttachmentView = () => {
               <img
                 src={`${import.meta.env.BASE_URL}/Media/download.png`}
                 loading="lazy"
-                onClick={() => handleDownloadAttachments(row.id, row.name)}
-                className={`fa-solid fa-download text-[1.8rem] text-[grey] cursor-pointer border-[1px] border-[#d2d2d2] 
-                w-[30px] h-[30px] px-[0.3rem] py-[0.1rem] rounded-md ${
+                onClick={() => handleDownloadAttachments(row.id)}
+                className={`cursor-pointer border w-[30px] h-[30px] px-[0.3rem] py-[0.1rem] rounded-md ${
                   index % 2 === 0 ? "bg-[#E4E2F2]" : "bg-white"
                 }`}
               />
@@ -115,92 +147,64 @@ const AttachmentView = () => {
     },
   ];
 
-  const getAttachmentURL = (attachment) => {
-    if (!attachment) return "";
-    return `${import.meta.env.BASE_URL}/attachments/${attachment.name}`;
-  };
-
-  const renderModalContent = () => {
-    if (!previewAttachment) return null;
-    const fileUrl = getAttachmentURL(previewAttachment);
-    const fileType = previewAttachment.name.split(".").pop().toLowerCase();
-    if (fileType === "pdf") {
-      return (
-        <iframe
-          src={fileUrl}
-          width="100%"
-          height="600px"
-          style={{ border: 0 }}
-        />
-      );
-    }
-    if (["png", "jpg", "jpeg", "gif"].includes(fileType)) {
-      return (
-        <img
-          src={fileUrl}
-          alt={previewAttachment.name}
-          style={{ width: "100%" }}
-        />
-      );
-    }
-    return (
-      <a href={fileUrl} target="_blank" rel="noopener noreferrer">
-        View or Download {previewAttachment.name}
-      </a>
-    );
-  };
-
   return (
     <>
       <ToastContainer
         autoClose={2000}
         position="top-center"
-        className={"custom-toast-container"}
+        className={`custom-toast-container`}
       />
-      {showDashboard ? (
-        <>
-          <Nav />
-          <div className="relative object-cover w-full h-screen mt-[9rem] bg-[#f2f2f2]">
-            <SearchFilter
-              pageTitle="Attachments"
-              filterView={false}
-              attachmentTitle={finalTitle}
-              attachmentView={true}
-              searchView={false}
-              searchText={searchText}
-              onSearchChange={handleSearchTextChange}
-              onSearchSubmit={handleSearchSubmit}
-              downloadAll={() =>
-                handleDownloadAllAttachments(decodeURIComponent(value))
-              }
-              showUpload={decodeURIComponent(value) === "resume"}
-            />
-            <Modal
-              open={isAttachmentPreviewOpen}
-              onCancel={handleCloseAttachmentPreview}
-              footer={null}
-              width={800}
-              centered
-            >
-              {renderModalContent()}
-            </Modal>
-            <Table
-              tableTitle={`${finalTitle} Table`}
-              columns={columns}
-              data={attachmentTableData}
-              attachmentView={true}
-              handlePageChange={(page) =>
-                handlePageChange(page, "attachment", value)
-              }
-              handleItemsPerPageChange={(val) =>
-                handleItemsPerPageChange(val, "attachment", value)
-              }
-            />
-          </div>
-        </>
+      <>
+        <Nav />
+        <div className="relative w-full h-screen mt-[9rem] bg-[#f2f2f2]">
+          <SearchFilter
+            pageTitle="Attachments"
+            filterView={false}
+            attachmentTitle={folderName}
+            attachmentView={true}
+            searchView={false}
+            searchText={searchText}
+            onSearchChange={handleSearchTextChange}
+            onSearchSubmit={handleSearchSubmit}
+            downloadAll={() =>
+              handleDownloadAllAttachments(decodeURIComponent(folderName))
+            }
+            showUpload={(() => {
+              const folder = attachmentFolderData.find(
+                (f) => f.display_name?.toLowerCase() === "candidate resume"
+              );
+              return (
+                folder && folder.display_name === decodeURIComponent(folderName)
+              );
+            })()}
+          />
+          <Modal
+            open={isAttachmentPreviewOpen}
+            onCancel={handleCloseAttachmentPreview}
+            footer={null}
+            width={800}
+            centered
+          >
+            {renderModalContent()}
+          </Modal>
+          <Table
+            tableTitle={`${folderName} Table`}
+            columns={columns}
+            data={attachmentTableData}
+            attachmentView={true}
+            handlePageChange={(page) =>
+              handlePageChange(page, "attachment", folderName)
+            }
+            handleItemsPerPageChange={(val) =>
+              handleItemsPerPageChange(val, "attachment", folderName)
+            }
+          />
+        </div>
+      </>
+      {/* {showDashboard ? (
       ) : (
         <APIErrorView />
-      )}
+      )} */}
     </>
   );
 };

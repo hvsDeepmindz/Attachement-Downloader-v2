@@ -56,7 +56,7 @@ const DashboardAttachments = () => {
         formatter: (val) => `${val}`,
       },
     },
-    responsive: [
+    responsive: [ 
       {
         breakpoint: 768,
         options: {

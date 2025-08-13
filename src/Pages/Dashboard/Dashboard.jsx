@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useEffect } from "react";
 import Nav from "../../Components/Header/Nav";
 import DashboardMain from "../../Features/FeatureDashboard/DashboardMain";

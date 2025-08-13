@@ -24,8 +24,6 @@ export const MessageData = async (currentPage, itemPerPage) => {
 };
 
 export const FolderBasedMessageData = async (folderid, pageSize, pageNo) => {
-  const axios = require("axios");
-
   let config = {
     method: "get",
     maxBodyLength: Infinity,
@@ -35,6 +33,7 @@ export const FolderBasedMessageData = async (folderid, pageSize, pageNo) => {
     headers: {
       accept: "application/json",
     },
+    withCredentials: true,
   };
 
   return axios

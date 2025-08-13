@@ -11,12 +11,12 @@ const Table = ({
   data,
   attachmentView = false,
   folderView = false,
+  totalPages,
+  totalItems,
 }) => {
   const {
     currentPage,
     itemsPerPage,
-    totalPages,
-    totalItems,
     startIndex,
     endIndex,
     paginatedData,
@@ -35,11 +35,7 @@ const Table = ({
   } = Handlers();
 
   const [isFolderOpen, setIsFolderOpen] = useState(true);
-
-  useEffect(() => {
-    updateTableData(data);
-  }, [data]);
-
+  const rows = Array.isArray(data) ? data : [];
   const perPageOptions = [10, 15, 20, 25, 30, 35, 40, 45, 50];
 
   return (
@@ -51,7 +47,7 @@ const Table = ({
         {folderView === true ? (
           <div
             className={`rounded-xl bg-white flex flex-col gap-[0rem] overflow-hidden transition-all duration-500 ease-in-out ${
-              isFolderOpen ? "w-[450px]" : "w-0"
+              isFolderOpen ? "w-[480px]" : "w-0"
             } h-[600px] max-md:h-[500px] overflow-y-auto no-scrollbar shadow-md`}
           >
             {isFolderOpen && (
@@ -154,7 +150,7 @@ const Table = ({
                             Array.isArray(data) ? data : data?.table_data || []
                           )
                         }
-                        className="cursor-pointer"
+                        className="cursor-pointer w-6 h-6"
                       />
                     </th>
                   )}
@@ -192,8 +188,8 @@ const Table = ({
                 </tbody>
               ) : (
                 <tbody>
-                  {paginatedData.length > 0 ? (
-                    paginatedData.map((row, rowIndex) => (
+                  {rows.length > 0 ? (
+                    rows.map((row, rowIndex) => (
                       <tr
                         key={rowIndex}
                         className={`${
@@ -209,11 +205,10 @@ const Table = ({
                             <input
                               type="checkbox"
                               checked={
-                                selectedAttachmentIds.includes(row.id) ||
-                                downloadedExcelIds.includes(row.id)
+                                selectedAttachmentIds.includes(row.id)
                               }
                               onChange={() => toggleAttachmentSelect(row.id)}
-                              className="cursor-pointer"
+                              className="cursor-pointer w-6 h-6"
                             />
                           </td>
                         )}

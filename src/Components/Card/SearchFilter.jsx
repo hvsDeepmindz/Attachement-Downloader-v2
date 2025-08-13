@@ -27,6 +27,9 @@ const SearchFilter = ({
     isDownloadingLoad,
     selectedAttachmentIds,
     handleExcelDownload,
+    handleDownloadAttachments,
+    attachmentFolderData,
+    handleMoveToFolder,
   } = Handlers();
 
   return (
@@ -76,13 +79,17 @@ const SearchFilter = ({
                   <select
                     name="attachments"
                     value={selectedAttachment}
-                    onChange={(e) => handleAttachmentSelect(e.target.value)}
+                    onChange={(e) => {
+                      if (e.target.value) {
+                        handleMoveToFolder(e.target.value);
+                      }
+                    }}
                     className={`bg-white border-[#765EA5] border-[1px] outline-none px-[2rem] py-[1rem] rounded-xl cursor-pointer font-normal text-[1.8rem] text-[#4D4D4D] max-sm:w-full`}
                   >
                     <option value="">Move To</option>
-                    {AttachmentData.map((ele) => (
-                      <option key={ele.id} value={ele.title}>
-                        {ele.title}
+                    {attachmentFolderData.map((folder) => (
+                      <option key={folder.id} value={folder.id}>
+                        {folder.display_name}
                       </option>
                     ))}
                   </select>
@@ -114,25 +121,24 @@ const SearchFilter = ({
             ) : null}
 
             {attachmentView === true ? (
-              <div className={`w-auto`}>
+              <div className="w-auto">
                 <ViewBtn
                   btnTitle={
                     isDownloadingLoad ? (
-                      <LuLoaderCircle size={20} className={`animate-spin`} />
+                      <LuLoaderCircle size={20} className="animate-spin" />
                     ) : (
                       "Download All"
                     )
                   }
                   btnIcon={
                     isDownloadingLoad ? null : (
-                      <i className={`fa-solid fa-download`} />
+                      <i className="fa-solid fa-download" />
                     )
                   }
                   btnDisable={isDownloadingLoad}
                   btnView={"table"}
-                  btnFunc={() => {
-                    downloadAll();
-                  }}
+                  // Call without argument so it picks from selectedAttachmentIds
+                  btnFunc={() => handleDownloadAttachments()}
                 />
               </div>
             ) : null}

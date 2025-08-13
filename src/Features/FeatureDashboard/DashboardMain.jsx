@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import ViewBtn from "../../Components/Btns/ViewBtn";
 import LinkBtn from "../../Components/Btns/LinkBtn";
 import ActionBtn from "../../Components/Btns/ActionBtn";
@@ -25,28 +25,31 @@ const DashboardMain = () => {
 
   const navigate = useNavigate();
 
+  const [processloading, setprocessloading] = useState(false);
+
   const handleProcessDuplicate = async () => {
+    setprocessloading(true);
     try {
       const res = await ProcessDuplicate();
       if (res) {
-        toast.success(res, { position: "top-right", autoClose: 3000 });
+        toast.success(res);
       } else {
-        toast.info("No duplicates found", {
-          position: "top-right",
-          autoClose: 3000,
-        });
+        toast.info("No duplicates found");
       }
     } catch (error) {
-      toast.error("Error processing duplicates", {
-        position: "top-right",
-        autoClose: 3000,
-      });
+      toast.error("Error processing duplicates");
+    } finally {
+      setprocessloading(false);
     }
   };
 
   return (
     <>
-      <ToastContainer autoClose={2000} position="top-center" />
+      {/* <ToastContainer
+        autoClose={2000}
+        position="top-center"
+        className={`custom-toast-container`}
+      /> */}
       <section
         className={`px-[10rem] py-[6rem] max-sm:py-[4rem] w-full relative object-cover flex justify-between items-start 
         gap-[8rem] max-xl:gap-[2rem] max-xl:px-[5rem] max-md:px-[2rem] max-xl:flex-col max-xl:items-center`}
@@ -95,8 +98,18 @@ const DashboardMain = () => {
               </div>
               <div className={`w-auto flex items-center max-sm:w-full`}>
                 <ActionBtn
-                  btnTitle={"Process Duplicates"}
-                  btnIcon={<i className="fa-regular fa-clone" />}
+                  btnTitle={
+                    processloading ? (
+                      <LuLoaderCircle size={20} className="animate-spin" />
+                    ) : (
+                      "Process Duplicates"
+                    )
+                  }
+                  btnIcon={
+                    processloading ? null : (
+                      <i className="fa-regular fa-clone" />
+                    )
+                  }
                   btnFunc={() => {
                     handleProcessDuplicate();
                   }}
@@ -114,14 +127,8 @@ const DashboardMain = () => {
               className={`w-auto max-sm:w-full justify-end hidden max-xl:flex`}
             >
               <ViewBtn
-                btnView={"content"}
-                btnTitle={
-                  isLoading && syncPendingItems > 0
-                    ? `Syncing ${syncPendingItems} item${
-                        syncPendingItems !== 1 ? "s" : ""
-                      }...`
-                    : "Sync"
-                }
+                btnView="content"
+                btnTitle={isLoading ? "Syncing..." : "Sync"}
                 btnFunc={isLoading ? undefined : fetchSyncData}
                 btnIcon={
                   <i

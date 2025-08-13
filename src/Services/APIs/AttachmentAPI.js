@@ -28,17 +28,68 @@ export const AttachmentTableData = async (
   }
 };
 
-export const DownloadAttachments = async (attachmentId) => {
-  const response = await axios.get(
-    `${import.meta.env.VITE_REACT_APP_BASE_URL}/attachment/download`,
-    {
-      params: { attachment_id: attachmentId },
-      responseType: "blob",
-      withCredentials: true,
-    }
+export const FolderBasedAttachmentData = async (folderid) => {
+  let config = {
+    method: "get",
+    maxBodyLength: Infinity,
+    url: `${
+      import.meta.env.VITE_REACT_APP_BASE_URL
+    }/attachment/all?attachment_folder_id=${folderid}&top=100&skip=0`,
+    headers: {
+      accept: "application/json",
+    },
+    withCredentials: true,
+  };
+
+  return axios
+    .request(config)
+    .then((response) => {
+      // console.log(JSON.stringify(response.data));
+      return response?.data;
+    })
+    .catch((error) => {
+      console.log(error);
+      return [];
+    });
+};
+
+export const DownloadAttachments = async (attachmentIds) => {
+  const data = JSON.stringify(
+    Array.isArray(attachmentIds) ? attachmentIds : [attachmentIds]
   );
 
-  return response.data;
+  const config = {
+    method: "post",
+    maxBodyLength: Infinity,
+    url: `${import.meta.env.VITE_REACT_APP_BASE_URL}/attachment/download`,
+    headers: {
+      accept: "application/octet-stream",
+      "Content-Type": "application/json",
+    },
+    data,
+    responseType: "blob",
+  };
+
+  try {
+    const response = await axios.request(config);
+
+    // Get filename from Content-Disposition header (if provided)
+    let fileName =
+      Array.isArray(attachmentIds) && attachmentIds.length > 1
+        ? "attachments.zip"
+        : "downloaded_file";
+    const disposition = response.headers["content-disposition"];
+    if (disposition && disposition.includes("filename=")) {
+      fileName = decodeURIComponent(
+        disposition.split("filename=")[1].replace(/"/g, "")
+      );
+    }
+
+    return { blob: response.data, fileName };
+  } catch (error) {
+    console.error("Download error", error);
+    return null;
+  }
 };
 
 export const DownloadAllAttachments = async (filename) => {
@@ -67,7 +118,7 @@ export const ExcelDownload = async (attachmentId) => {
   const config = {
     method: "post",
     maxBodyLength: Infinity,
-    url: `${import.meta.env.VITE_REACT_APP_BASE_URL}/attachment/upload`,
+    url: `${import.meta.env.VITE_REACT_APP_BASE_URL}/attachment/parse-resume`,
     headers: {
       accept: "application/json",
       "Content-Type": "application/json",

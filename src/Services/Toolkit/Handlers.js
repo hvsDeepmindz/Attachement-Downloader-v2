@@ -25,12 +25,13 @@ import {
   openAttachmentPreview,
   closeAttachmentPreview,
   setFolderData,
+  setAttachmentFolderData,
 } from "./Slice";
 import { useEffect } from "react";
 import { userLogin, userLogout } from "../../../config";
 import { DashboardData } from "../APIs/DashboardAPI";
 import { toast } from "react-toastify";
-import { MessageData } from "../APIs/MessagesAPI";
+import { FolderBasedMessageData, MessageData } from "../APIs/MessagesAPI";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { SyncData, SyncStatus } from "../APIs/SyncAPI";
 import { SearchMessage } from "../APIs/SearchMessageAPI";
@@ -39,9 +40,14 @@ import {
   DownloadAllAttachments,
   DownloadAttachments,
   ExcelDownload,
+  FolderBasedAttachmentData,
 } from "../APIs/AttachmentAPI";
 import { AttachmentData } from "../Data/AttachmentData";
-import { GetAllMessageFolder } from "../APIs/AttachmentFolder";
+import {
+  GetAllAttachmentFolder,
+  GetAllMessageFolder,
+} from "../APIs/AttachmentFolder";
+import { MoveToFolderData } from "../APIs/MoveToFolderAPI";
 
 const Handlers = () => {
   const dispatch = useDispatch();
@@ -74,6 +80,7 @@ const Handlers = () => {
     isAttachmentPreviewOpen,
     previewAttachment,
     folderData,
+    attachmentFolderData,
   } = useSelector((state) => state.app);
 
   const handleLoad = () => {
@@ -91,7 +98,7 @@ const Handlers = () => {
     toast.success("Logout successfully!");
     setTimeout(() => {
       window.location.href = userLogout;
-    }, 1000);
+    }, 1000); 
   };
 
   const showGroupMenu = () => {
@@ -148,20 +155,41 @@ const Handlers = () => {
 
   const fetchMessageData = async (
     page = currentPage,
-    perPage = itemsPerPage
+    perPage = itemsPerPage,
+    folderIdOverride = null
   ) => {
     dispatch(setLoading(true));
     try {
-      const res = await MessageData(page, perPage);
-      if (res) {
-        dispatch(setMessageTableData(res));
+      let folder =
+        folderData.find((f) => f.displayName === selectFolderView) ||
+        folderData[0];
+
+      if (folderIdOverride) {
+        folder = folderData.find((f) => f.id === folderIdOverride) || folder;
+      }
+
+      if (!folder) {
+        dispatch(
+          setMessageTableData({ previews: [], totalPages: 0, totalItems: 0 })
+        );
+        return;
+      }
+
+      const res = await FolderBasedMessageData(folder.id, perPage, page);
+
+      if (res?.previews) {
+        updateTableData({
+          previews: res.previews,
+          totalPages: res["total pages"] || 0,
+          totalItems: res.totalItems || res.previews.length,
+        });
         dispatch(setShowDashboard(true));
       } else {
+        updateTableData({ previews: [], totalPages: 0, totalItems: 0 });
         dispatch(setShowDashboard(false));
-        toast.error("Not Authorized");
-        // setTimeout(() => pushHistory("/login"), 2000);
       }
     } catch {
+      updateTableData({ previews: [], totalPages: 0, totalItems: 0 });
       dispatch(setShowDashboard(false));
     } finally {
       dispatch(setLoading(false));
@@ -171,21 +199,13 @@ const Handlers = () => {
   const fetchSyncData = async () => {
     dispatch(setLoading(true));
     try {
-      const [initial, result] = await Promise.all([SyncStatus(), SyncData()]);
-      const total = initial?.total_items || 0;
-      const syncedBefore = initial?.total_synced_items || 0;
-      const syncedAfter = result?.total_synced_items || 0;
-      const newSynced = Math.max(syncedAfter - syncedBefore, 0);
-      const pending = Math.max(total - syncedAfter, 0);
-
-      dispatch(setSyncPendingItems(pending));
-
-      if (newSynced > 0) {
-        toast.success(`Synced ${newSynced} items successfully`);
+      const result = await SyncData();
+      if (result && typeof result === "string") {
+        toast.success(result);
       } else {
-        toast.info("Already up to date");
+        toast.info("No sync information returned");
       }
-      fetchDashboardData();
+      await fetchDashboardData();
     } catch {
       toast.error("Sync failed");
     } finally {
@@ -193,49 +213,59 @@ const Handlers = () => {
     }
   };
 
-  const fetchAttachmentData = async (value) => {
+  const fetchAttachmentData = async (folderNameOrId) => {
     dispatch(setLoading(true));
     try {
-      const decodedValue = decodeURIComponent(value);
+      let folder =
+        typeof folderNameOrId === "number"
+          ? attachmentFolderData.find((f) => f.id === folderNameOrId)
+          : attachmentFolderData.find((f) => f.display_name === folderNameOrId);
 
-      const matchedItem =
-        selectedAttachment?.value === decodedValue
-          ? selectedAttachment
-          : AttachmentData.find((item) => item.value === decodedValue);
-
-      const isDuplicate =
-        matchedItem?.title === "Dupliacte CVs" ||
-        matchedItem?.title === "Dupliacte JDs";
-
-      const res = await AttachmentTableData(
-        decodedValue,
-        isDuplicate ? 1 : 0,
-        currentPage,
-        itemsPerPage
-      );
-
-      if (res) {
-        dispatch(setAttachmentTableData(res));
+      if (!folder) {
+        dispatch(setAttachmentTableData({ attachments: [] }));
+        return;
+      }
+      const res = await FolderBasedAttachmentData(folder.id);
+      if (res?.attachments) {
+        updateTableData({ attachments: res.attachments }, "attachment");
         dispatch(setShowDashboard(true));
       } else {
+        updateTableData({ attachments: [] }, "attachment");
         dispatch(setShowDashboard(false));
-        toast.error("Not Authorized");
-        setTimeout(() => pushHistory("/login"), 1000);
       }
     } catch {
+      updateTableData({ attachments: [] }, "attachment");
       dispatch(setShowDashboard(false));
-      dispatch(setLoading(false));
     } finally {
       dispatch(setLoading(false));
     }
   };
 
-  const fetchAttachmentFolderData = async () => {
+  const fetchMessageFolderData = async () => {
     try {
       const res = await GetAllMessageFolder();
-      dispatch(setFolderData(res || []));
+      updateTableData({ previews: [], totalPages: 0, totalItems: 0 });
+      dispatch({ type: "app/setFolderData", payload: res || [] });
+    } catch {
+      dispatch({ type: "app/setFolderData", payload: [] });
+    }
+  };
+
+  const fetchAttachmentFolderData = async () => {
+    try {
+      const res = await GetAllAttachmentFolder();
+
+      const updatedData = (res || []).map((item) => {
+        const match = AttachmentData.find((a) => a.value === item.value);
+        return {
+          ...item,
+          icon: match?.icon || "/default_icon.png",
+        };
+      });
+
+      dispatch(setAttachmentFolderData(updatedData));
     } catch (err) {
-      dispatch(setFolderData([]));
+      dispatch(setAttachmentFolderData([]));
     }
   };
 
@@ -248,22 +278,18 @@ const Handlers = () => {
     : messageTableData || [];
 
   const updateTableData = (payload, type = "message") => {
-    const action =
-      type === "attachment" ? setAttachmentTableData : setMessageTableData;
-    const defaultMeta = {
-      total_items: totalItems,
-      total_pages: totalPages,
-    };
-
-    if (payload?.table_data && payload?.meta_data) {
-      dispatch(action(payload));
+    if (type === "attachment") {
+      if (payload?.attachments) {
+        dispatch(setAttachmentTableData(payload));
+      } else if (Array.isArray(payload)) {
+        dispatch(setAttachmentTableData({ attachments: payload }));
+      }
     } else {
-      dispatch(
-        action({
-          table_data: payload,
-          meta_data: defaultMeta,
-        })
-      );
+      if (payload?.previews) {
+        dispatch(setMessageTableData(payload));
+      } else if (Array.isArray(payload)) {
+        dispatch(setMessageTableData({ previews: payload }));
+      }
     }
   };
 
@@ -275,42 +301,9 @@ const Handlers = () => {
     if (page > 0 && page <= totalPages) {
       dispatch(setCurrentPage(page));
       dispatch(setLoading(true));
-
-      const isAttachment = tableType === "attachment";
-
-      if (searchText.trim() !== "" && !isAttachment) {
-        const res = await SearchMessage({
-          text: searchText,
-          currentPage: page,
-          itemsPerPage,
-        });
-        if (res?.table_data) {
-          dispatch(setMessageTableData(res));
-        }
-      } else {
-        if (isAttachment) {
-          const decodedValue = decodeURIComponent(attachmentValue);
-          const matchedItem =
-            selectedAttachment?.value === decodedValue
-              ? selectedAttachment
-              : AttachmentData.find((item) => item.value === decodedValue);
-
-          const isDuplicate =
-            matchedItem?.title === "Dupliacte CVs" ||
-            matchedItem?.title === "Dupliacte JDs";
-
-          const res = await AttachmentTableData(
-            decodedValue,
-            isDuplicate ? 1 : 0,
-            page,
-            itemsPerPage
-          );
-          if (res) dispatch(setAttachmentTableData(res));
-        } else {
-          await fetchMessageData(page, itemsPerPage);
-        }
+      if (tableType === "message") {
+        await fetchMessageData(page, itemsPerPage);
       }
-
       dispatch(setLoading(false));
     }
   };
@@ -323,42 +316,9 @@ const Handlers = () => {
     dispatch(setItemsPerPage(value));
     dispatch(setCurrentPage(1));
     dispatch(setLoading(true));
-
-    const isAttachment = tableType === "attachment";
-
-    if (searchText.trim() !== "" && !isAttachment) {
-      const res = await SearchMessage({
-        text: searchText,
-        currentPage: 1,
-        itemsPerPage: value,
-      });
-      if (res?.table_data) {
-        dispatch(setMessageTableData(res));
-      }
-    } else {
-      if (isAttachment) {
-        const decodedValue = decodeURIComponent(attachmentValue);
-        const matchedItem =
-          selectedAttachment?.value === decodedValue
-            ? selectedAttachment
-            : AttachmentData.find((item) => item.value === decodedValue);
-
-        const isDuplicate =
-          matchedItem?.title === "Dupliacte CVs" ||
-          matchedItem?.title === "Dupliacte JDs";
-
-        const res = await AttachmentTableData(
-          decodedValue,
-          isDuplicate ? 1 : 0,
-          1,
-          value
-        );
-        if (res) dispatch(setAttachmentTableData(res));
-      } else {
-        await fetchMessageData(1, value);
-      }
+    if (tableType === "message") {
+      await fetchMessageData(1, value);
     }
-
     dispatch(setLoading(false));
   };
 
@@ -443,33 +403,53 @@ const Handlers = () => {
     navigate(prevPath);
   };
 
-  const handleAttachmentClick = (item) => {
-    dispatch(setSelectedAttachment(item));
-    pushHistory(`/attachments/${item.value}`);
+  const handleAttachmentClick = async (folder) => {
+    dispatch(setSelectedFolderView(folder.display_name));
+    dispatch(setCurrentPage(1));
+    await fetchAttachmentData(folder.display_name);
+    pushHistory(`/attachments/${encodeURIComponent(folder.display_name)}`);
   };
 
-  const handleDownloadAttachments = async (attachmentId, attachmentName) => {
+  const handleDownloadAttachments = async (attachmentId) => {
+    dispatch(setIsDownloadingLoad(true));
     try {
-      dispatch(setDownloadingAttachmentId(attachmentId));
-      const blobData = await DownloadAttachments(attachmentId);
-      if (!blobData || !(blobData instanceof Blob)) {
+      const idsToDownload = attachmentId
+        ? [attachmentId] 
+        : selectedAttachmentIds.length > 0 
+        ? selectedAttachmentIds
+        : [];
+
+      if (idsToDownload.length === 0) {
+        toast.warning("No attachments selected for download");
+        return;
+      }
+
+      if (idsToDownload.length === 1) {
+        dispatch(setDownloadingAttachmentId(idsToDownload[0]));
+      }
+
+      const res = await DownloadAttachments(idsToDownload);
+
+      if (!res || !res.blob) {
         toast.error("Invalid file response");
         return;
       }
-      const url = window.URL.createObjectURL(blobData);
+
+      const url = window.URL.createObjectURL(res.blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = attachmentName;
+      a.download = res.fileName;
       document.body.appendChild(a);
       a.click();
       a.remove();
       window.URL.revokeObjectURL(url);
 
       toast.success("Download complete");
-    } catch (error) {
+    } catch {
       toast.error("Download failed");
     } finally {
       dispatch(setDownloadingAttachmentId(null));
+      dispatch(setIsDownloadingLoad(false));
     }
   };
 
@@ -499,11 +479,50 @@ const Handlers = () => {
     }
   };
 
+  const handleMoveToFolder = async (targetFolderId, attachmentId = null) => {
+    try {
+      const idsToMove = attachmentId
+        ? [attachmentId]
+        : selectedAttachmentIds.length > 0
+        ? selectedAttachmentIds
+        : [];
+
+      if (idsToMove.length === 0) {
+        toast.warning("No attachments selected to move");
+        return;
+      }
+
+      dispatch(setLoading(true));
+
+      const res = await MoveToFolderData(targetFolderId, idsToMove);
+
+      if (res) {
+        toast.success("Attachment(s) moved successfully");
+
+        // Refresh current folder data from backend immediately
+        const currentFolder = attachmentFolderData.find(
+          (f) => f.display_name === selectFolderView
+        );
+
+        if (currentFolder) {
+          // Wait for backend to update, then refetch latest
+          await fetchAttachmentData(currentFolder.display_name);
+        }
+      } else {
+        toast.error("Failed to move attachments");
+      }
+    } catch {
+      toast.error("Failed to move attachments");
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
+
   const handleExcelDownload = async () => {
     const ids = selectedAttachmentIds;
     if (ids.length === 0) return;
-    if (ids.length > 10) {
-      toast.warning("Select max 10 data at once");
+    if (ids.length > 5) {
+      toast.warning("Select max 5 data at once");
       return;
     }
     dispatch(setIsDownloadExcel(true));
@@ -527,8 +546,13 @@ const Handlers = () => {
     dispatch(toggleSelectAllAttachments(allIds));
   };
 
-  const handleSelectFolderView = (selectedValue) => {
+  const handleSelectFolderView = async (selectedValue) => {
+    const folder = folderData.find((f) => f.displayName === selectedValue);
     dispatch(setSelectedFolderView(selectedValue));
+    dispatch(setCurrentPage(1));
+    if (folder) {
+      await fetchMessageData(1, itemsPerPage, folder.id);
+    }
   };
 
   const handleOpenAttachmentPreview = (attachmentRow) => {
@@ -593,11 +617,14 @@ const Handlers = () => {
     isAttachmentPreviewOpen,
     previewAttachment,
     folderData,
+    attachmentFolderData,
+    handleMoveToFolder,
     // Api func
     fetchDashboardData,
     fetchMessageData,
     fetchSyncData,
     fetchAttachmentData,
+    fetchMessageFolderData,
     fetchAttachmentFolderData,
   };
 };

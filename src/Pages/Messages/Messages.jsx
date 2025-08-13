@@ -21,24 +21,27 @@ const Messages = () => {
     searchText,
     handleSearchTextChange,
     handleSearchSubmit,
-    fetchAttachmentFolderData,
+    fetchMessageFolderData,
     folderData,
+    selectFolderView,
   } = Handlers();
 
   useEffect(() => {
     if (!dashboardData?.user_name || !dashboardData?.user_mail) {
       fetchDashboardData();
     }
-    fetchMessageData(currentPage, itemsPerPage);
+    fetchMessageFolderData();
   }, []);
 
   useEffect(() => {
-    fetchAttachmentFolderData();
-  }, []);
+    if (folderData.length > 0 && selectFolderView) {
+      fetchMessageData(1, itemsPerPage);
+    }
+  }, [folderData, selectFolderView]);
 
   const columns = [
     { header: "Sender Name", accessor: (row) => row.sender_name },
-    { header: "Sender Email", accessor: (row) => row.sender_mail },
+    // { header: "Sender Email", accessor: (row) => row.sender_mail },
     { header: "Subject", accessor: (row) => row.subject },
     {
       header: "Date",
@@ -97,11 +100,10 @@ const Messages = () => {
         <Table
           tableTitle="Messages Table"
           columns={columns}
-          data={{
-            table_data: messageTableData,
-            meta_data: { total_items: totalItems, total_pages: totalPages },
-          }}
+          data={messageTableData?.previews || []}
           folderView={true}
+          totalPages={messageTableData?.totalPages || 0}
+          totalItems={messageTableData?.totalItems || 0}
         />
       </div>
       {/* {showDashboard ? (

@@ -1,5 +1,6 @@
 /* eslint-disable no-unused-vars */
 import { createSlice } from "@reduxjs/toolkit";
+import { AttachmentData } from "../Data/AttachmentData";
 
 const getPersistedExcelIds = () => {
   const stored = localStorage.getItem("downloadedExcelIds");
@@ -13,7 +14,7 @@ const initialState = {
   showDashboard: false,
   currentPage: 1,
   itemsPerPage: 10,
-  messageTableData: [],
+  messageTableData: { previews: [], totalPages: 0, totalItems: 0 },
   attachmentTableData: [],
   totalItems: 0,
   totalPages: 0,
@@ -31,6 +32,7 @@ const initialState = {
   isAttachmentPreviewOpen: false,
   previewAttachment: null,
   folderData: [],
+  attachmentFolderData: [],
 };
 
 const Slice = createSlice({
@@ -56,15 +58,26 @@ const Slice = createSlice({
       state.itemsPerPage = action.payload;
     },
     setMessageTableData: (state, action) => {
-      state.messageTableData = action.payload.table_data || [];
-      state.totalItems = action.payload.total_items || 0;
-      state.totalPages = action.payload.meta_data?.total_pages || 0;
+      const {
+        previews = [],
+        totalPages = 0,
+        totalItems = previews.length,
+      } = action.payload || {};
+      state.messageTableData = { previews, totalPages, totalItems };
+      state.totalItems = totalItems;
+      state.totalPages = totalPages;
     },
     setAttachmentTableData: (state, action) => {
-      state.attachmentTableData = action.payload;
-      state.totalItems = action.payload.meta_data?.total_items || 0;
-      state.totalPages = action.payload.meta_data?.total_pages || 0;
+      const {
+        attachments = [],
+        totalPages = 0,
+        totalItems = attachments.length,
+      } = action.payload || {};
+      state.attachmentTableData = attachments;
+      state.totalItems = totalItems;
+      state.totalPages = totalPages;
     },
+
     setSyncPendingItems: (state, action) => {
       state.syncPendingItems = action.payload;
     },
@@ -136,7 +149,12 @@ const Slice = createSlice({
       state.isAttachmentPreviewOpen = false;
     },
     setFolderData: (state, action) => {
-      state.folderData = action.payload;
+      state.folderData = Array.isArray(action.payload) ? action.payload : [];
+    },
+    setAttachmentFolderData: (state, action) => {
+      state.attachmentFolderData = Array.isArray(action.payload)
+        ? action.payload
+        : [];
     },
   },
 });
@@ -166,5 +184,6 @@ export const {
   openAttachmentPreview,
   closeAttachmentPreview,
   setFolderData,
+  setAttachmentFolderData,
 } = Slice.actions;
 export default Slice.reducer;
