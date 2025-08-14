@@ -28,13 +28,17 @@ export const AttachmentTableData = async (
   }
 };
 
-export const FolderBasedAttachmentData = async (folderid) => {
+export const FolderBasedAttachmentData = async (
+  folderid,
+  pageSize = 10,
+  pageNo = 1
+) => {
   let config = {
     method: "get",
     maxBodyLength: Infinity,
     url: `${
       import.meta.env.VITE_REACT_APP_BASE_URL
-    }/attachment/all?attachment_folder_id=${folderid}&top=100&skip=0`,
+    }/attachment/all?attachment_folder_id=${folderid}&page_size=${pageSize}&page_num=${pageNo}`,
     headers: {
       accept: "application/json",
     },
@@ -44,7 +48,6 @@ export const FolderBasedAttachmentData = async (folderid) => {
   return axios
     .request(config)
     .then((response) => {
-      // console.log(JSON.stringify(response.data));
       return response?.data;
     })
     .catch((error) => {

@@ -27,7 +27,6 @@ const AttachmentView = () => {
     itemsPerPage,
     handlePageChange,
     handleItemsPerPageChange,
-    updateTableData,
     searchText,
     handleSearchTextChange,
     handleSearchSubmit,
@@ -47,7 +46,11 @@ const AttachmentView = () => {
 
   useEffect(() => {
     if (folderName && attachmentFolderData.length > 0) {
-      fetchAttachmentData(decodeURIComponent(folderName));
+      fetchAttachmentData(
+        decodeURIComponent(folderName),
+        currentPage,
+        itemsPerPage
+      );
     }
   }, [attachmentFolderData, folderName, currentPage, itemsPerPage]);
 
@@ -98,15 +101,14 @@ const AttachmentView = () => {
   };
 
   const columns = [
-    // { header: "Sender Email", accessor: (row) => row.sender_mail },
     {
       header: "Attachment",
       accessor: (row, index) => (
         <button
+          onClick={() => handleOpenAttachmentPreview(row)}
           className={`flex items-center justify-start border px-[2rem] py-[0.3rem] rounded-full ${
             index % 2 === 0 ? "bg-[#E4E2F2]" : "bg-[#f1f1f1]"
           }`}
-          // onClick={() => handleOpenAttachmentPreview(row)}
         >
           <img
             src={`${import.meta.env.BASE_URL}/Media/doc.png`}
@@ -154,57 +156,57 @@ const AttachmentView = () => {
         position="top-center"
         className={`custom-toast-container`}
       />
-      <>
-        <Nav />
-        <div className="relative w-full h-screen mt-[9rem] bg-[#f2f2f2]">
-          <SearchFilter
-            pageTitle="Attachments"
-            filterView={false}
-            attachmentTitle={folderName}
-            attachmentView={true}
-            searchView={false}
-            searchText={searchText}
-            onSearchChange={handleSearchTextChange}
-            onSearchSubmit={handleSearchSubmit}
-            downloadAll={() =>
-              handleDownloadAllAttachments(decodeURIComponent(folderName))
-            }
-            showUpload={(() => {
-              const folder = attachmentFolderData.find(
-                (f) => f.display_name?.toLowerCase() === "candidate resume"
-              );
-              return (
-                folder && folder.display_name === decodeURIComponent(folderName)
-              );
-            })()}
-          />
-          <Modal
-            open={isAttachmentPreviewOpen}
-            onCancel={handleCloseAttachmentPreview}
-            footer={null}
-            width={800}
-            centered
-          >
-            {renderModalContent()}
-          </Modal>
-          <Table
-            tableTitle={`${folderName} Table`}
-            columns={columns}
-            data={attachmentTableData}
-            attachmentView={true}
-            handlePageChange={(page) =>
-              handlePageChange(page, "attachment", folderName)
-            }
-            handleItemsPerPageChange={(val) =>
-              handleItemsPerPageChange(val, "attachment", folderName)
-            }
-          />
-        </div>
-      </>
-      {/* {showDashboard ? (
-      ) : (
-        <APIErrorView />
-      )} */}
+      <Nav />
+      <div className="relative w-full h-screen mt-[9rem] bg-[#f2f2f2]">
+        <SearchFilter
+          pageTitle="Attachments"
+          filterView={false}
+          attachmentTitle={folderName}
+          attachmentView={true}
+          searchView={false}
+          searchText={searchText}
+          onSearchChange={handleSearchTextChange}
+          onSearchSubmit={handleSearchSubmit}
+          downloadAll={() =>
+            handleDownloadAllAttachments(decodeURIComponent(folderName))
+          }
+          showUpload={(() => {
+            const folder = attachmentFolderData.find(
+              (f) => f.display_name?.toLowerCase() === "candidate resume"
+            );
+            return (
+              folder && folder.display_name === decodeURIComponent(folderName)
+            );
+          })()}
+        />
+        <Modal
+          open={isAttachmentPreviewOpen}
+          onCancel={handleCloseAttachmentPreview}
+          footer={null}
+          width={800}
+          centered
+        >
+          {renderModalContent()}
+        </Modal>
+        <Table
+          tableTitle={`${folderName} Table`}
+          columns={columns}
+          data={attachmentTableData?.attachments || []}
+          attachmentView={true}
+          totalPages={attachmentTableData?.totalPages || 0}
+          totalItems={attachmentTableData?.totalItems || 0}
+          handlePageChange={(page) =>
+            handlePageChange(page, "attachment", decodeURIComponent(folderName))
+          }
+          handleItemsPerPageChange={(val) =>
+            handleItemsPerPageChange(
+              val,
+              "attachment",
+              decodeURIComponent(folderName)
+            )
+          }
+        />
+      </div>
     </>
   );
 };

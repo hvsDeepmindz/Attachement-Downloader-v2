@@ -63,12 +63,10 @@ const Handlers = () => {
     currentPage,
     itemsPerPage,
     messageTableData,
-    totalItems,
-    totalPages,
+    attachmentTableData,
     syncPendingItems,
     searchText,
     selectedAttachment,
-    attachmentTableData,
     historyStack,
     downloadingAttachmentId,
     selectedAttachmentIds,
@@ -116,8 +114,6 @@ const Handlers = () => {
     return `${words[0][0]}${words[words.length - 1][0]}`.toUpperCase();
   };
 
-  // API Func
-
   const fetchDashboardData = async () => {
     dispatch(setLoading(true));
     try {
@@ -126,17 +122,11 @@ const Handlers = () => {
         toast.error("Not authenticated");
         dispatch(setDashboardData(null));
         dispatch(setShowDashboard(false));
-        setTimeout(() => {
-          // pushHistory("/login");
-        }, 3000);
         return;
       }
       if (status !== 200) {
         dispatch(setDashboardData(null));
         dispatch(setShowDashboard(false));
-        setTimeout(() => {
-          // pushHistory("/login");
-        }, 3000);
         return;
       }
       dispatch(setDashboardData(data));
@@ -145,9 +135,6 @@ const Handlers = () => {
       toast.error("Failed to fetch dashboard data");
       dispatch(setDashboardData(null));
       dispatch(setShowDashboard(false));
-      setTimeout(() => {
-        // pushHistory("/login");
-      }, 2000);
     } finally {
       dispatch(setLoading(false));
     }
@@ -178,25 +165,35 @@ const Handlers = () => {
       const res = await FolderBasedMessageData(folder.id, perPage, page);
 
       if (res?.previews) {
-        updateTableData({
-          previews: res.previews,
-          totalPages: res["total pages"] || 0,
-          totalItems: res.totalItems || res.previews.length,
-        });
+        dispatch(
+          setMessageTableData({
+            previews: res.previews || [],
+            totalPages: Number(res["total pages"]) || 0,
+            totalItems: Number(res.totalItems) || res.previews.length || 0,
+          })
+        );
         dispatch(setShowDashboard(true));
       } else {
-        updateTableData({ previews: [], totalPages: 0, totalItems: 0 });
+        dispatch(
+          setMessageTableData({ previews: [], totalPages: 0, totalItems: 0 })
+        );
         dispatch(setShowDashboard(false));
       }
     } catch {
-      updateTableData({ previews: [], totalPages: 0, totalItems: 0 });
+      dispatch(
+        setMessageTableData({ previews: [], totalPages: 0, totalItems: 0 })
+      );
       dispatch(setShowDashboard(false));
     } finally {
       dispatch(setLoading(false));
     }
   };
 
-  const fetchAttachmentData = async (folderNameOrId) => {
+  const fetchAttachmentData = async (
+    folderNameOrId,
+    page = currentPage,
+    perPage = itemsPerPage
+  ) => {
     dispatch(setLoading(true));
     try {
       let folder =
@@ -205,19 +202,46 @@ const Handlers = () => {
           : attachmentFolderData.find((f) => f.display_name === folderNameOrId);
 
       if (!folder) {
-        dispatch(setAttachmentTableData({ attachments: [] }));
+        dispatch(
+          setAttachmentTableData({
+            attachments: [],
+            totalPages: 0,
+            totalItems: 0,
+          })
+        );
         return;
       }
-      const res = await FolderBasedAttachmentData(folder.id);
-      if (res?.attachments) {
-        updateTableData({ attachments: res.attachments }, "attachment");
+      const res = await FolderBasedAttachmentData(folder.id, perPage, page);
+      if (res?.success && res?.attachments) {
+        dispatch(
+          setAttachmentTableData({
+            attachments: res.attachments || [],
+            totalPages:
+              Math.ceil(
+                Number(res.totalItems || res.attachments.length) / perPage
+              ) || 1,
+            totalItems: Number(res.totalItems) || res.attachments.length || 0,
+          })
+        );
         dispatch(setShowDashboard(true));
       } else {
-        updateTableData({ attachments: [] }, "attachment");
+        dispatch(
+          setAttachmentTableData({
+            attachments: [],
+            totalPages: 0,
+            totalItems: 0,
+          })
+        );
         dispatch(setShowDashboard(false));
       }
     } catch {
-      updateTableData({ attachments: [] }, "attachment");
+      dispatch(
+        setAttachmentTableData({
+          attachments: [],
+          totalPages: 0,
+          totalItems: 0,
+        })
+      );
       dispatch(setShowDashboard(false));
     } finally {
       dispatch(setLoading(false));
@@ -244,17 +268,15 @@ const Handlers = () => {
   const fetchMessageFolderData = async () => {
     try {
       const res = await GetAllMessageFolder();
-      updateTableData({ previews: [], totalPages: 0, totalItems: 0 });
-      dispatch({ type: "app/setFolderData", payload: res || [] });
+      dispatch(setFolderData(res || []));
     } catch {
-      dispatch({ type: "app/setFolderData", payload: [] });
+      dispatch(setFolderData([]));
     }
   };
 
   const fetchAttachmentFolderData = async () => {
     try {
       const res = await GetAllAttachmentFolder();
-
       const updatedData = (res || []).map((item) => {
         const match = AttachmentData.find((a) => a.value === item.value);
         return {
@@ -262,47 +284,59 @@ const Handlers = () => {
           icon: match?.icon || "/default_icon.png",
         };
       });
-
       dispatch(setAttachmentFolderData(updatedData));
-    } catch (err) {
+    } catch {
       dispatch(setAttachmentFolderData([]));
     }
   };
 
-  // End fetch API func
-
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
+  const startIndex = Math.max(0, (currentPage - 1) * itemsPerPage);
+  const endIndex = Math.min(
+    startIndex + itemsPerPage,
+    location.pathname.includes("/attachments")
+      ? attachmentTableData?.totalItems || 0
+      : messageTableData?.totalItems || 0
+  );
   const paginatedData = location.pathname.includes("/attachments")
-    ? attachmentTableData?.table_data || []
-    : messageTableData || [];
+    ? attachmentTableData?.attachments || []
+    : messageTableData?.previews || [];
 
   const updateTableData = (payload, type = "message") => {
     if (type === "attachment") {
-      if (payload?.attachments) {
-        dispatch(setAttachmentTableData(payload));
-      } else if (Array.isArray(payload)) {
-        dispatch(setAttachmentTableData({ attachments: payload }));
-      }
+      dispatch(
+        setAttachmentTableData({
+          attachments: payload.attachments || [],
+          totalPages: payload.totalPages || 0,
+          totalItems: payload.totalItems || 0,
+        })
+      );
     } else {
-      if (payload?.previews) {
-        dispatch(setMessageTableData(payload));
-      } else if (Array.isArray(payload)) {
-        dispatch(setMessageTableData({ previews: payload }));
-      }
+      dispatch(
+        setMessageTableData({
+          previews: payload.previews || [],
+          totalPages: payload.totalPages || 0,
+          totalItems: payload.totalItems || 0,
+        })
+      );
     }
   };
 
   const handlePageChange = async (
     page,
     tableType = "message",
-    attachmentValue = ""
+    extra = null
   ) => {
-    if (page > 0 && page <= totalPages) {
+    const maxPages =
+      tableType === "attachment"
+        ? attachmentTableData.totalPages
+        : messageTableData.totalPages;
+    if (page > 0 && (!maxPages || page <= maxPages)) {
       dispatch(setCurrentPage(page));
       dispatch(setLoading(true));
       if (tableType === "message") {
         await fetchMessageData(page, itemsPerPage);
+      } else if (tableType === "attachment") {
+        await fetchAttachmentData(extra, page, itemsPerPage);
       }
       dispatch(setLoading(false));
     }
@@ -311,13 +345,16 @@ const Handlers = () => {
   const handleItemsPerPageChange = async (
     value,
     tableType = "message",
-    attachmentValue = ""
+    extra = null
   ) => {
-    dispatch(setItemsPerPage(value));
+    const newPerPage = Number(value) || 10;
+    dispatch(setItemsPerPage(newPerPage));
     dispatch(setCurrentPage(1));
     dispatch(setLoading(true));
     if (tableType === "message") {
-      await fetchMessageData(1, value);
+      await fetchMessageData(1, newPerPage);
+    } else if (tableType === "attachment") {
+      await fetchAttachmentData(extra, 1, newPerPage);
     }
     dispatch(setLoading(false));
   };
@@ -332,9 +369,9 @@ const Handlers = () => {
 
     if (trimmed === "") {
       if (isAttachment) {
-        fetchAttachmentData(routeParamTitle);
+        await fetchAttachmentData(routeParamTitle, 1, itemsPerPage);
       } else {
-        fetchMessageData(1, itemsPerPage);
+        await fetchMessageData(1, itemsPerPage);
       }
       return;
     }
@@ -361,7 +398,16 @@ const Handlers = () => {
       );
 
       if (res) {
-        dispatch(setAttachmentTableData(res));
+        dispatch(
+          setAttachmentTableData({
+            attachments: res.attachments || [],
+            totalPages:
+              Math.ceil(
+                Number(res.totalItems || res.attachments.length) / itemsPerPage
+              ) || 1,
+            totalItems: Number(res.totalItems) || res.attachments.length || 0,
+          })
+        );
         dispatch(setCurrentPage(1));
       }
     } else {
@@ -372,7 +418,21 @@ const Handlers = () => {
       });
 
       if (res?.table_data) {
-        dispatch(setMessageTableData(res));
+        dispatch(
+          setMessageTableData({
+            previews: res.table_data.previews || [],
+            totalPages:
+              Math.ceil(
+                Number(
+                  res.table_data.totalItems || res.table_data.previews.length
+                ) / itemsPerPage
+              ) || 1,
+            totalItems:
+              Number(res.table_data.totalItems) ||
+              res.table_data.previews.length ||
+              0,
+          })
+        );
         dispatch(setCurrentPage(1));
       }
     }
@@ -498,14 +558,11 @@ const Handlers = () => {
 
       if (res) {
         toast.success("Attachment(s) moved successfully");
-
-        // Refresh current folder data from backend immediately
         const currentFolder = attachmentFolderData.find(
           (f) => f.display_name === selectFolderView
         );
 
         if (currentFolder) {
-          // Wait for backend to update, then refetch latest
           await fetchAttachmentData(currentFolder.display_name);
         }
       } else {
@@ -580,11 +637,8 @@ const Handlers = () => {
     showDashboard,
     currentPage,
     itemsPerPage,
-    totalPages,
-    totalItems,
-    startIndex,
-    endIndex,
     messageTableData,
+    attachmentTableData,
     paginatedData,
     handlePageChange,
     handleItemsPerPageChange,
@@ -594,7 +648,6 @@ const Handlers = () => {
     handleSearchTextChange,
     handleSearchSubmit,
     selectedAttachment,
-    attachmentTableData,
     handleAttachmentClick,
     handleDownloadAttachments,
     handleDownloadAllAttachments,
@@ -619,7 +672,6 @@ const Handlers = () => {
     folderData,
     attachmentFolderData,
     handleMoveToFolder,
-    // Api func
     fetchDashboardData,
     fetchMessageData,
     fetchSyncData,

@@ -11,18 +11,14 @@ const Table = ({
   data,
   attachmentView = false,
   folderView = false,
-  totalPages,
-  totalItems,
+  totalPages = 0,
+  totalItems = 0,
 }) => {
   const {
     showDashboard,
     currentPage,
     itemsPerPage,
-    startIndex,
-    endIndex,
-    paginatedData,
     handlePageChange,
-    updateTableData,
     handleItemsPerPageChange,
     selectedAttachmentIds,
     downloadedExcelIds,
@@ -37,7 +33,9 @@ const Table = ({
 
   const [isFolderOpen, setIsFolderOpen] = useState(true);
   const rows = Array.isArray(data) ? data : [];
-  const perPageOptions = [10, 15, 20, 25, 30, 35, 40, 45, 50];
+  const perPageOptions = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50];
+  const startIndex = Math.max(0, (currentPage - 1) * itemsPerPage);
+  const endIndex = Math.min(startIndex + itemsPerPage, totalItems || 0);
 
   return (
     <div
@@ -57,7 +55,7 @@ const Table = ({
                   <Tooltip
                     title={
                       <div style={{ color: "#000" }}>
-                        {showDashboard ? dashboardData?.user_mail : "NA"}
+                        {dashboardData?.user_mail}
                       </div>
                     }
                     color="#fff"
@@ -65,7 +63,7 @@ const Table = ({
                   >
                     <h2 className="text-[1.6rem] font-[600] line-clamp-1 cursor-pointer">
                       <i className="fa-solid fa-user-tie text-[1.8rem]" />
-                      &nbsp; {showDashboard ? dashboardData?.user_name : "NA"}
+                      &nbsp; {dashboardData?.user_name}
                     </h2>
                   </Tooltip>
                   <i
@@ -73,54 +71,44 @@ const Table = ({
                     onClick={() => setIsFolderOpen(!isFolderOpen)}
                   />
                 </div>
-                {showDashboard ? (
-                  <>
-                    <div className="flex flex-col w-auto">
-                      {folderData.map((ele) => (
-                        <div
-                          key={ele?.id}
-                          onClick={() =>
-                            handleSelectFolderView(ele?.displayName)
-                          }
-                          className={`border-b border-[#d2d2d2] px-[2rem] py-[1rem] cursor-pointer flex justify-between items-center hover:bg-[#e4e2f2] ${
-                            selectFolderView === ele?.displayName
-                              ? "bg-[#e4e2f2]"
-                              : "bg-white"
-                          }`}
-                        >
-                          <Tooltip
-                            title={
-                              <div style={{ color: "#000" }}>
-                                {ele?.displayName}
-                              </div>
-                            }
-                            color="#fff"
-                            overlayInnerStyle={{
-                              color: "#000",
-                              background: "#fff",
-                            }}
-                          >
-                            <h2 className="text-[1.6rem] text-[#414141] font-[600] line-clamp-1 cursor-pointer">
-                              {selectFolderView === ele?.displayName ? (
-                                <i className="fa-solid fa-circle-check text-[green] text-[1.8rem]" />
-                              ) : (
-                                <i className="fa-solid fa-folder-open text-[grey] text-[1.8rem]" />
-                              )}
-                              &nbsp; {ele?.displayName}
-                            </h2>
-                          </Tooltip>
-                          <h2 className="text-[1.6rem] text-[#414141] font-[600] cursor-pointer">
-                            {ele?.totalItemCount}
-                          </h2>
-                        </div>
-                      ))}
+                <div className="flex flex-col w-auto">
+                  {folderData.map((ele) => (
+                    <div
+                      key={ele?.id}
+                      onClick={() => handleSelectFolderView(ele?.displayName)}
+                      className={`border-b border-[#d2d2d2] px-[2rem] py-[1rem] cursor-pointer flex justify-between items-center hover:bg-[#e4e2f2] ${
+                        selectFolderView === ele?.displayName
+                          ? "bg-[#e4e2f2]"
+                          : "bg-white"
+                      }`}
+                    >
+                      <Tooltip
+                        title={
+                          <div style={{ color: "#000" }}>
+                            {ele?.displayName}
+                          </div>
+                        }
+                        color="#fff"
+                        overlayInnerStyle={{
+                          color: "#000",
+                          background: "#fff",
+                        }}
+                      >
+                        <h2 className="text-[1.6rem] text-[#414141] font-[600] line-clamp-1 cursor-pointer">
+                          {selectFolderView === ele?.displayName ? (
+                            <i className="fa-solid fa-circle-check text-[green] text-[1.8rem]" />
+                          ) : (
+                            <i className="fa-solid fa-folder-open text-[grey] text-[1.8rem]" />
+                          )}
+                          &nbsp; {ele?.displayName}
+                        </h2>
+                      </Tooltip>
+                      <h2 className="text-[1.6rem] text-[#414141] font-[600] cursor-pointer">
+                        {ele?.totalItemCount}
+                      </h2>
                     </div>
-                  </>
-                ) : (
-                  <div className="flex justify-center items-center text-center mt-[50%]">
-                    <Empty />
-                  </div>
-                )}
+                  ))}
+                </div>
               </>
             )}
           </div>
@@ -147,7 +135,6 @@ const Table = ({
                     <th className="px-[2rem] py-[1.5rem] text-left text-[1.6rem] font-[600] sticky left-0 z-10 bg-[#765EA5]">
                       <input
                         type="checkbox"
-                        disabled={!showDashboard}
                         checked={
                           selectedAttachmentIds.length ===
                             (Array.isArray(data)
@@ -170,7 +157,6 @@ const Table = ({
                       />
                     </th>
                   )}
-
                   <th
                     className={`${
                       attachmentView === true ? "left-[5rem]" : "left-0"
@@ -220,7 +206,6 @@ const Table = ({
                           >
                             <input
                               type="checkbox"
-                              disabled={!showDashboard}
                               checked={selectedAttachmentIds.includes(row.id)}
                               onChange={() => toggleAttachmentSelect(row.id)}
                               className="cursor-pointer w-6 h-6"
@@ -237,7 +222,7 @@ const Table = ({
                           {startIndex + rowIndex + 1}.
                         </td>
                         {columns.map((column, colIndex) => {
-                          const accessorOutput = column.accessor(row);
+                          const accessorOutput = column.accessor(row, rowIndex);
                           const isElement =
                             React.isValidElement(accessorOutput);
 
@@ -288,7 +273,13 @@ const Table = ({
           <label className="text-[1.6rem] text-[#444444]">Rows:</label>
           <select
             value={itemsPerPage}
-            onChange={(e) => handleItemsPerPageChange(Number(e.target.value))}
+            onChange={(e) =>
+              handleItemsPerPageChange(
+                Number(e.target.value),
+                attachmentView ? "attachment" : "message",
+                attachmentView ? selectFolderView : null
+              )
+            }
             className="border border-[#cccccc] px-[1rem] py-[0.5rem] rounded-md text-[1.4rem] text-[#333333] outline-none cursor-pointer"
           >
             {perPageOptions.map((opt) => (
@@ -298,16 +289,24 @@ const Table = ({
             ))}
           </select>
           <span className="text-[1.6rem] text-black font-normal">
-            {startIndex + 1} - {Math.min(endIndex, totalItems)}{" "}
-            <span className="text-[grey]">Out of {totalItems}</span>
+            {totalItems > 0
+              ? `${startIndex + 1} - ${Math.min(endIndex, totalItems)}`
+              : "0 - 0"}
+            <span className="text-[grey]"> Out of {totalItems || 0}</span>
           </span>
         </div>
         <div className="flex items-center gap-[0.2rem]">
           <button
-            onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1}
+            onClick={() =>
+              handlePageChange(
+                currentPage - 1,
+                attachmentView ? "attachment" : "message",
+                attachmentView ? selectFolderView : null
+              )
+            }
+            disabled={currentPage === 1 || totalItems === 0}
             className={`px-[1rem] py-[0.5rem] text-[1.4rem] ${
-              currentPage === 1
+              currentPage === 1 || totalItems === 0
                 ? "cursor-not-allowed text-[#a3a0a0]"
                 : "cursor-pointer text-[#623AA2]"
             } bg-white border-[#d2d2d2] rounded-full mr-[0.5rem]`}
@@ -315,25 +314,39 @@ const Table = ({
             <i className="fa-solid fa-chevron-left" />
           </button>
           <div className="overflow-x-auto flex no-scrollbar grow-0 shrink-0 max-w-[200px] mr-[1rem]">
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-              <button
-                key={page}
-                onClick={() => handlePageChange(page)}
-                className={`px-[1.2rem] py-[0.5rem] text-[1.4rem] border-[1px] ${
-                  currentPage === page
-                    ? "bg-[#6B46C1] text-white border-transparent"
-                    : "text-[#666666] bg-white border-[#d2d2d2]"
-                } mx-[0.5rem] rounded-full cursor-pointer`}
-              >
-                {page}
-              </button>
-            ))}
+            {Array.from({ length: totalPages || 0 }, (_, i) => i + 1).map(
+              (page) => (
+                <button
+                  key={page}
+                  onClick={() =>
+                    handlePageChange(
+                      page,
+                      attachmentView ? "attachment" : "message",
+                      attachmentView ? selectFolderView : null
+                    )
+                  }
+                  className={`px-[1.2rem] py-[0.5rem] text-[1.4rem] border-[1px] ${
+                    currentPage === page
+                      ? "bg-[#6B46C1] text-white border-transparent"
+                      : "text-[#666666] bg-white border-[#d2d2d2]"
+                  } mx-[0.5rem] rounded-full cursor-pointer`}
+                >
+                  {page}
+                </button>
+              )
+            )}
           </div>
           <button
-            onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === totalPages}
+            onClick={() =>
+              handlePageChange(
+                currentPage + 1,
+                attachmentView ? "attachment" : "message",
+                attachmentView ? selectFolderView : null
+              )
+            }
+            disabled={currentPage === totalPages || totalItems === 0}
             className={`px-[1rem] py-[0.5rem] text-[1.4rem] ${
-              currentPage === totalPages
+              currentPage === totalPages || totalItems === 0
                 ? "cursor-not-allowed text-[#a3a0a0]"
                 : "cursor-pointer text-[#623AA2]"
             } bg-white border-[#d2d2d2] rounded-full mr-[0.5rem]`}

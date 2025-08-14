@@ -51,25 +51,15 @@ const Nav = () => {
       </Link>
 
       <div className="relative">
-        {showDashboard ? (
-          <div
-            ref={buttonRef}
-            className="cursor-pointer flex justify-end bg-[#624D8A] px-[0.8rem] py-[0.5rem] w-auto rounded-full"
-            onClick={() => (isGroupVisible ? hideGroupMenu() : showGroupMenu())}
-          >
-            <p className="text-[2.5rem] text-white">
-              {getInitials(dashboardData?.user_name)}
-            </p>
-          </div>
-        ) : (
-          <button
-            onClick={handleLogin}
-            className="cursor-pointer flex justify-end bg-[#624D8A] px-[2rem] py-[1rem] w-auto rounded-xl"
-          >
-            <p className="text-[2rem] text-white">Login</p>
-          </button>
-        )}
-
+        <div
+          ref={buttonRef}
+          className="cursor-pointer flex justify-end bg-[#624D8A] px-[0.8rem] py-[0.5rem] w-auto rounded-full"
+          onClick={() => (isGroupVisible ? hideGroupMenu() : showGroupMenu())}
+        >
+          <p className="text-[2.5rem] text-white">
+            {getInitials(dashboardData?.user_name)}
+          </p>
+        </div>
         <div
           ref={menuRef}
           className={`absolute top-full right-[-6rem] max-sm:right-[-2rem] mt-[2.5rem] w-auto px-[3rem] py-[2rem] rounded-xl bg-white shadow-lg transition-opacity transition-visibility duration-300 ease-in-out ${

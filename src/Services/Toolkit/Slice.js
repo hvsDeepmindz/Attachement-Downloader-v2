@@ -15,7 +15,7 @@ const initialState = {
   currentPage: 1,
   itemsPerPage: 10,
   messageTableData: { previews: [], totalPages: 0, totalItems: 0 },
-  attachmentTableData: [],
+  attachmentTableData: { attachments: [], totalPages: 0, totalItems: 0 },
   totalItems: 0,
   totalPages: 0,
   syncPendingItems: 0,
@@ -71,13 +71,10 @@ const Slice = createSlice({
       const {
         attachments = [],
         totalPages = 0,
-        totalItems = attachments.length,
+        totalItems = 0,
       } = action.payload || {};
-      state.attachmentTableData = attachments;
-      state.totalItems = totalItems;
-      state.totalPages = totalPages;
+      state.attachmentTableData = { attachments, totalPages, totalItems };
     },
-
     setSyncPendingItems: (state, action) => {
       state.syncPendingItems = action.payload;
     },
