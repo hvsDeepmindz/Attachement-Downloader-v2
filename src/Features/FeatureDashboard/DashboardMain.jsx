@@ -21,6 +21,7 @@ const DashboardMain = () => {
     getInitials,
     fetchSyncData,
     syncPendingItems,
+    showDashboard,
   } = Handlers();
 
   const navigate = useNavigate();
@@ -45,11 +46,6 @@ const DashboardMain = () => {
 
   return (
     <>
-      {/* <ToastContainer
-        autoClose={2000}
-        position="top-center"
-        className={`custom-toast-container`}
-      /> */}
       <section
         className={`px-[10rem] py-[6rem] max-sm:py-[4rem] w-full relative object-cover flex justify-between items-start 
         gap-[8rem] max-xl:gap-[2rem] max-xl:px-[5rem] max-md:px-[2rem] max-xl:flex-col max-xl:items-center`}
@@ -77,7 +73,13 @@ const DashboardMain = () => {
             <div
               className={`flex items-center gap-[2rem] max-sm:flex-col max-sm:w-full`}
             >
-              <div className={`w-auto flex items-center max-sm:w-full`}>
+              <div
+                className={`w-auto flex items-center max-sm:w-full ${
+                  !showDashboard
+                    ? "cursor-not-allowed opacity-[0.8]"
+                    : "cursor-pointer opacity-[1]"
+                }`}
+              >
                 <ViewBtn
                   btnView={"content"}
                   btnTitle={"Messages"}
@@ -85,18 +87,32 @@ const DashboardMain = () => {
                     navigate("/messages");
                   }}
                   btnIcon={<i className="fa-regular fa-envelope" />}
+                  btnDisable={!showDashboard}
                 />
               </div>
-              <div className={`w-auto flex items-center max-sm:w-full`}>
+              <div
+                className={`w-auto flex items-center max-sm:w-full ${
+                  !showDashboard
+                    ? "cursor-not-allowed opacity-[0.8]"
+                    : "cursor-pointer opacity-[1]"
+                }`}
+              >
                 <LinkBtn
                   btnTitle={"Attachments"}
                   btnFunc={() => {
                     navigate("/attachments");
                   }}
                   btnIcon={<i className="fa-solid fa-paperclip" />}
+                  btnDisable={!showDashboard}
                 />
               </div>
-              <div className={`w-auto flex items-center max-sm:w-full`}>
+              <div
+                className={`w-auto flex items-center max-sm:w-full ${
+                  !showDashboard
+                    ? "cursor-not-allowed opacity-[0.8]"
+                    : "cursor-pointer opacity-[1]"
+                }`}
+              >
                 <ActionBtn
                   btnTitle={
                     processloading ? (
@@ -113,6 +129,7 @@ const DashboardMain = () => {
                   btnFunc={() => {
                     handleProcessDuplicate();
                   }}
+                  btnDisable={!showDashboard}
                 />
               </div>
             </div>
@@ -124,7 +141,11 @@ const DashboardMain = () => {
               Last sync at {dashboardData?.last_synced}
             </p>
             <div
-              className={`w-auto max-sm:w-full justify-end hidden max-xl:flex`}
+              className={`w-auto max-sm:w-full justify-end hidden max-xl:flex ${
+                !showDashboard
+                  ? "cursor-not-allowed opacity-[0.8]"
+                  : "cursor-pointer opacity-[1]"
+              }`}
             >
               <ViewBtn
                 btnView="content"
@@ -137,11 +158,18 @@ const DashboardMain = () => {
                     }`}
                   />
                 }
+                btnDisable={!showDashboard}
               />
             </div>
           </div>
         </div>
-        <div className={`w-auto justify-end max-xl:hidden`}>
+        <div
+          className={`w-auto justify-end max-xl:hidden ${
+            !showDashboard
+              ? "cursor-not-allowed opacity-[0.8]"
+              : "cursor-pointer opacity-[1]"
+          }`}
+        >
           <ViewBtn
             btnView="content"
             btnTitle={
@@ -159,6 +187,7 @@ const DashboardMain = () => {
                 }`}
               />
             }
+            btnDisable={!showDashboard}
           />
         </div>
       </section>

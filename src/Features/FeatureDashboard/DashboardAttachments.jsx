@@ -1,9 +1,10 @@
 import React from "react";
 import Chart from "react-apexcharts";
 import Handlers from "../../Services/Toolkit/Handlers";
+import { Empty } from "antd";
 
 const DashboardAttachments = () => {
-  const { dashboardData } = Handlers();
+  const { dashboardData, showDashboard } = Handlers();
 
   const attachmentData = dashboardData?.attachment_data || {
     total_candidates: 0,
@@ -28,6 +29,8 @@ const DashboardAttachments = () => {
     attachmentData.duplicate_jd,
     attachmentData.common_files,
   ];
+
+  const chartValuesDefault = [0, 0, 0, 0, 0];
 
   const chartOptions = {
     chart: {
@@ -56,7 +59,7 @@ const DashboardAttachments = () => {
         formatter: (val) => `${val}`,
       },
     },
-    responsive: [ 
+    responsive: [
       {
         breakpoint: 768,
         options: {
@@ -96,15 +99,19 @@ const DashboardAttachments = () => {
       </div>
 
       <div className="flex justify-between max-sm:flex-col max-sm:justify-center gap-[4rem] w-full items-center px-[0rem] mt-[2rem]">
-        <div className="w-[300px] h-[300px] max-sm:w-full max-sm:h-[280px]">
-          <Chart
-            options={chartOptions}
-            series={chartValues}
-            type="pie"
-            width="100%"
-            height="100%"
-          />
-        </div>
+        {showDashboard ? (
+          <div className="w-[300px] h-[300px] max-sm:w-full max-sm:h-[280px]">
+            <Chart
+              options={chartOptions}
+              series={chartValues}
+              type="pie"
+              width="100%"
+              height="100%"
+            />
+          </div>
+        ) : (
+          <Empty />
+        )}
 
         <div className="grid grid-cols-2 gap-[3rem] ml-[4rem] max-sm:flex max-sm:m-0 max-sm:shrink-0 max-sm:grow-0 overflow-x-auto max-sm:max-w-2xl max-sm:gap-[6rem] max-sm:px-[2rem] no-scrollbar">
           <div className="flex items-start gap-[1rem]">

@@ -8,7 +8,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const Dashboard = () => {
-  const { fetchDashboardData, showDashboard, dashboardData } = Handlers();
+  const { fetchDashboardData, dashboardData } = Handlers();
 
   useEffect(() => {
     if (!dashboardData) {
@@ -23,18 +23,12 @@ const Dashboard = () => {
         position="top-center"
         className={`custom-toast-container`}
       />
-        <>
-          <Nav />
-          <div
-            className={`relative object-cover w-full mt-[9rem] bg-[#f2f2f2]`}
-          >
-            <DashboardMain />
-          </div>
-        </>
-      {/* {showDashboard ? (
-      ) : (
-        <APIErrorView />
-      )} */}
+      <>
+        <Nav />
+        <div className={`relative object-cover w-full mt-[9rem] bg-[#f2f2f2]`}>
+          <DashboardMain />
+        </div>
+      </>
     </>
   );
 };

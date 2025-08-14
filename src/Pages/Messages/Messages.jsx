@@ -6,6 +6,7 @@ import Table from "../../Components/Table/Table";
 import Handlers from "../../Services/Toolkit/Handlers";
 import { Tooltip } from "antd";
 import APIErrorView from "../../Components/Error/APIErrorView";
+import { ToastContainer } from "react-toastify";
 
 const Messages = () => {
   const {
@@ -106,12 +107,6 @@ const Messages = () => {
           totalItems={messageTableData?.totalItems || 0}
         />
       </div>
-      {/* {showDashboard ? (
-        <>
-        </>
-      ) : (
-        <APIErrorView />
-      )} */}
     </>
   );
 };

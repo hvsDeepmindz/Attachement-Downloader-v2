@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import Handlers from "../../Services/Toolkit/Handlers";
 import { LuLoader, LuLoaderCircle } from "react-icons/lu";
 import MessageFolderData from "../../Services/Data/MessageFolderData";
-import { Tooltip } from "antd";
+import { Empty, Tooltip } from "antd";
 
 const Table = ({
   tableTitle,
@@ -15,6 +15,7 @@ const Table = ({
   totalItems,
 }) => {
   const {
+    showDashboard,
     currentPage,
     itemsPerPage,
     startIndex,
@@ -56,7 +57,7 @@ const Table = ({
                   <Tooltip
                     title={
                       <div style={{ color: "#000" }}>
-                        {dashboardData?.user_mail}
+                        {showDashboard ? dashboardData?.user_mail : "NA"}
                       </div>
                     }
                     color="#fff"
@@ -64,7 +65,7 @@ const Table = ({
                   >
                     <h2 className="text-[1.6rem] font-[600] line-clamp-1 cursor-pointer">
                       <i className="fa-solid fa-user-tie text-[1.8rem]" />
-                      &nbsp; {dashboardData?.user_name}
+                      &nbsp; {showDashboard ? dashboardData?.user_name : "NA"}
                     </h2>
                   </Tooltip>
                   <i
@@ -72,44 +73,54 @@ const Table = ({
                     onClick={() => setIsFolderOpen(!isFolderOpen)}
                   />
                 </div>
-                <div className="flex flex-col w-auto">
-                  {folderData.map((ele) => (
-                    <div
-                      key={ele?.id}
-                      onClick={() => handleSelectFolderView(ele?.displayName)}
-                      className={`border-b border-[#d2d2d2] px-[2rem] py-[1rem] cursor-pointer flex justify-between items-center hover:bg-[#e4e2f2] ${
-                        selectFolderView === ele?.displayName
-                          ? "bg-[#e4e2f2]"
-                          : "bg-white"
-                      }`}
-                    >
-                      <Tooltip
-                        title={
-                          <div style={{ color: "#000" }}>
-                            {ele?.displayName}
-                          </div>
-                        }
-                        color="#fff"
-                        overlayInnerStyle={{
-                          color: "#000",
-                          background: "#fff",
-                        }}
-                      >
-                        <h2 className="text-[1.6rem] text-[#414141] font-[600] line-clamp-1 cursor-pointer">
-                          {selectFolderView === ele?.displayName ? (
-                            <i className="fa-solid fa-circle-check text-[green] text-[1.8rem]" />
-                          ) : (
-                            <i className="fa-solid fa-folder-open text-[grey] text-[1.8rem]" />
-                          )}
-                          &nbsp; {ele?.displayName}
-                        </h2>
-                      </Tooltip>
-                      <h2 className="text-[1.6rem] text-[#414141] font-[600] cursor-pointer">
-                        {ele?.totalItemCount}
-                      </h2>
+                {showDashboard ? (
+                  <>
+                    <div className="flex flex-col w-auto">
+                      {folderData.map((ele) => (
+                        <div
+                          key={ele?.id}
+                          onClick={() =>
+                            handleSelectFolderView(ele?.displayName)
+                          }
+                          className={`border-b border-[#d2d2d2] px-[2rem] py-[1rem] cursor-pointer flex justify-between items-center hover:bg-[#e4e2f2] ${
+                            selectFolderView === ele?.displayName
+                              ? "bg-[#e4e2f2]"
+                              : "bg-white"
+                          }`}
+                        >
+                          <Tooltip
+                            title={
+                              <div style={{ color: "#000" }}>
+                                {ele?.displayName}
+                              </div>
+                            }
+                            color="#fff"
+                            overlayInnerStyle={{
+                              color: "#000",
+                              background: "#fff",
+                            }}
+                          >
+                            <h2 className="text-[1.6rem] text-[#414141] font-[600] line-clamp-1 cursor-pointer">
+                              {selectFolderView === ele?.displayName ? (
+                                <i className="fa-solid fa-circle-check text-[green] text-[1.8rem]" />
+                              ) : (
+                                <i className="fa-solid fa-folder-open text-[grey] text-[1.8rem]" />
+                              )}
+                              &nbsp; {ele?.displayName}
+                            </h2>
+                          </Tooltip>
+                          <h2 className="text-[1.6rem] text-[#414141] font-[600] cursor-pointer">
+                            {ele?.totalItemCount}
+                          </h2>
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
+                  </>
+                ) : (
+                  <div className="flex justify-center items-center text-center mt-[50%]">
+                    <Empty />
+                  </div>
+                )}
               </>
             )}
           </div>
@@ -136,6 +147,7 @@ const Table = ({
                     <th className="px-[2rem] py-[1.5rem] text-left text-[1.6rem] font-[600] sticky left-0 z-10 bg-[#765EA5]">
                       <input
                         type="checkbox"
+                        disabled={!showDashboard}
                         checked={
                           selectedAttachmentIds.length ===
                             (Array.isArray(data)
@@ -150,7 +162,11 @@ const Table = ({
                             Array.isArray(data) ? data : data?.table_data || []
                           )
                         }
-                        className="cursor-pointer w-6 h-6"
+                        className={`${
+                          showDashboard
+                            ? "cursor-pointer"
+                            : "cursor-not-allowed"
+                        } w-6 h-6`}
                       />
                     </th>
                   )}
@@ -204,9 +220,8 @@ const Table = ({
                           >
                             <input
                               type="checkbox"
-                              checked={
-                                selectedAttachmentIds.includes(row.id)
-                              }
+                              disabled={!showDashboard}
+                              checked={selectedAttachmentIds.includes(row.id)}
                               onChange={() => toggleAttachmentSelect(row.id)}
                               className="cursor-pointer w-6 h-6"
                             />
@@ -255,9 +270,9 @@ const Table = ({
                     <tr>
                       <td
                         colSpan={columns.length + (attachmentView ? 2 : 1)}
-                        className="px-[2rem] py-[1.5rem] text-center text-[1.6rem] text-[#666666]"
+                        className="px-[2rem] py-[4rem] text-center text-[1.6rem] text-[#666666]"
                       >
-                        No data available
+                        <Empty />
                       </td>
                     </tr>
                   )}

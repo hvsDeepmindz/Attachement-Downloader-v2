@@ -10,7 +10,9 @@ const Nav = () => {
     dashboardData,
     getInitials,
     handleLogout,
+    handleLogin,
     fetchDashboardData,
+    showDashboard,
   } = Handlers();
 
   const menuRef = useRef();
@@ -49,15 +51,24 @@ const Nav = () => {
       </Link>
 
       <div className="relative">
-        <div
-          ref={buttonRef}
-          className="cursor-pointer flex justify-end bg-[#624D8A] px-[0.8rem] py-[0.5rem] w-auto rounded-full"
-          onClick={() => (isGroupVisible ? hideGroupMenu() : showGroupMenu())}
-        >
-          <p className="text-[2.5rem] text-white">
-            {getInitials(dashboardData?.user_name)}
-          </p>
-        </div>
+        {showDashboard ? (
+          <div
+            ref={buttonRef}
+            className="cursor-pointer flex justify-end bg-[#624D8A] px-[0.8rem] py-[0.5rem] w-auto rounded-full"
+            onClick={() => (isGroupVisible ? hideGroupMenu() : showGroupMenu())}
+          >
+            <p className="text-[2.5rem] text-white">
+              {getInitials(dashboardData?.user_name)}
+            </p>
+          </div>
+        ) : (
+          <button
+            onClick={handleLogin}
+            className="cursor-pointer flex justify-end bg-[#624D8A] px-[2rem] py-[1rem] w-auto rounded-xl"
+          >
+            <p className="text-[2rem] text-white">Login</p>
+          </button>
+        )}
 
         <div
           ref={menuRef}
@@ -66,13 +77,23 @@ const Nav = () => {
           }`}
         >
           <div className="flex flex-col justify-end items-end">
-            <button
-              onClick={handleLogout}
-              type="button"
-              className="cursor-pointer text-[1.8rem] font-semibold text-[#4D4D4D] outline-none border-none bg-transparent transition-all duration-300 ease-in-out hover:opacity-[0.5]"
-            >
-              Log out
-            </button>
+            {showDashboard ? (
+              <button
+                onClick={handleLogout}
+                type="button"
+                className="cursor-pointer text-[1.8rem] font-semibold text-[#4D4D4D] outline-none border-none bg-transparent transition-all duration-300 ease-in-out hover:opacity-[0.5]"
+              >
+                Log out
+              </button>
+            ) : (
+              <button
+                onClick={handleLogin}
+                type="button"
+                className="cursor-pointer text-[1.8rem] font-semibold text-[#4D4D4D] outline-none border-none bg-transparent transition-all duration-300 ease-in-out hover:opacity-[0.5]"
+              >
+                Log In
+              </button>
+            )}
             <div className="flex items-center justify-start gap-[1rem] mt-[2rem]">
               <div className="bg-[#624D8A] rounded-full px-[1.2rem] py-[1rem]">
                 <p className="text-white text-[2rem] font-normal">

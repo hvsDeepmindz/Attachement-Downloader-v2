@@ -4,7 +4,7 @@ import AuthBtn from "../../Components/Btns/AuthBtn";
 import Handlers from "../../Services/Toolkit/Handlers";
 
 const LoginMain = () => {
-  const { handleLogin } = Handlers();
+  const { handleLogin, showDashboard } = Handlers();
 
   return (
     <>

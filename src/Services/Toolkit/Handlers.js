@@ -98,7 +98,7 @@ const Handlers = () => {
     toast.success("Logout successfully!");
     setTimeout(() => {
       window.location.href = userLogout;
-    }, 1000); 
+    }, 1000);
   };
 
   const showGroupMenu = () => {
@@ -196,23 +196,6 @@ const Handlers = () => {
     }
   };
 
-  const fetchSyncData = async () => {
-    dispatch(setLoading(true));
-    try {
-      const result = await SyncData();
-      if (result && typeof result === "string") {
-        toast.success(result);
-      } else {
-        toast.info("No sync information returned");
-      }
-      await fetchDashboardData();
-    } catch {
-      toast.error("Sync failed");
-    } finally {
-      dispatch(setLoading(false));
-    }
-  };
-
   const fetchAttachmentData = async (folderNameOrId) => {
     dispatch(setLoading(true));
     try {
@@ -236,6 +219,23 @@ const Handlers = () => {
     } catch {
       updateTableData({ attachments: [] }, "attachment");
       dispatch(setShowDashboard(false));
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
+
+  const fetchSyncData = async () => {
+    dispatch(setLoading(true));
+    try {
+      const result = await SyncData();
+      if (result && typeof result === "string") {
+        toast.success(result);
+      } else {
+        toast.info("No sync information returned");
+      }
+      await fetchDashboardData();
+    } catch {
+      toast.error("Sync failed");
     } finally {
       dispatch(setLoading(false));
     }
@@ -414,8 +414,8 @@ const Handlers = () => {
     dispatch(setIsDownloadingLoad(true));
     try {
       const idsToDownload = attachmentId
-        ? [attachmentId] 
-        : selectedAttachmentIds.length > 0 
+        ? [attachmentId]
+        : selectedAttachmentIds.length > 0
         ? selectedAttachmentIds
         : [];
 
