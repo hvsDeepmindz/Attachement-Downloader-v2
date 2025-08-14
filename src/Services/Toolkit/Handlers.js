@@ -169,7 +169,7 @@ const Handlers = () => {
           setMessageTableData({
             previews: res.previews || [],
             totalPages: Number(res["total pages"]) || 0,
-            totalItems: Number(res.totalItems) || res.previews.length || 0,
+            totalItems: Number(res["total_items"]) || 0,
           })
         );
         dispatch(setShowDashboard(true));
@@ -217,7 +217,7 @@ const Handlers = () => {
           setAttachmentTableData({
             attachments: res.attachments || [],
             totalPages: Number(res.total_pages) || 0,
-            totalItems: Number(res.total_pages) * perPage || 0,
+            totalItems: Number(res.total_items) || 0,
           })
         );
         dispatch(setShowDashboard(true));
