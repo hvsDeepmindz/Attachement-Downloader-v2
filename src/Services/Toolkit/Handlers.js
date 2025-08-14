@@ -216,11 +216,8 @@ const Handlers = () => {
         dispatch(
           setAttachmentTableData({
             attachments: res.attachments || [],
-            totalPages:
-              Math.ceil(
-                Number(res.totalItems || res.attachments.length) / perPage
-              ) || 1,
-            totalItems: Number(res.totalItems) || res.attachments.length || 0,
+            totalPages: Number(res.total_pages) || 0,
+            totalItems: Number(res.total_pages) * perPage || 0,
           })
         );
         dispatch(setShowDashboard(true));
@@ -369,9 +366,9 @@ const Handlers = () => {
 
     if (trimmed === "") {
       if (isAttachment) {
-        await fetchAttachmentData(routeParamTitle, 1, itemsPerPage);
+        fetchAttachmentData(routeParamTitle);
       } else {
-        await fetchMessageData(1, itemsPerPage);
+        fetchMessageData(1, itemsPerPage);
       }
       return;
     }
@@ -398,16 +395,7 @@ const Handlers = () => {
       );
 
       if (res) {
-        dispatch(
-          setAttachmentTableData({
-            attachments: res.attachments || [],
-            totalPages:
-              Math.ceil(
-                Number(res.totalItems || res.attachments.length) / itemsPerPage
-              ) || 1,
-            totalItems: Number(res.totalItems) || res.attachments.length || 0,
-          })
-        );
+        dispatch(setAttachmentTableData(res));
         dispatch(setCurrentPage(1));
       }
     } else {
@@ -418,21 +406,7 @@ const Handlers = () => {
       });
 
       if (res?.table_data) {
-        dispatch(
-          setMessageTableData({
-            previews: res.table_data.previews || [],
-            totalPages:
-              Math.ceil(
-                Number(
-                  res.table_data.totalItems || res.table_data.previews.length
-                ) / itemsPerPage
-              ) || 1,
-            totalItems:
-              Number(res.table_data.totalItems) ||
-              res.table_data.previews.length ||
-              0,
-          })
-        );
+        dispatch(setMessageTableData(res));
         dispatch(setCurrentPage(1));
       }
     }
@@ -620,9 +594,9 @@ const Handlers = () => {
     dispatch(closeAttachmentPreview());
   };
 
-  useEffect(() => {
-    dispatch(resetSelectedAttachments());
-  }, [attachmentTableData]);
+  // useEffect(() => {
+  //   dispatch(resetSelectedAttachments());
+  // }, [attachmentTableData]);
 
   return {
     isLoading,
