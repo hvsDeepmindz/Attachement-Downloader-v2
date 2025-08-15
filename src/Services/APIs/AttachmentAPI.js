@@ -129,6 +129,7 @@ export const ExcelDownload = async (attachmentId) => {
     },
     data: JSON.stringify(attachmentId),
     responseType: "blob",
+    withCredentials: true,
   };
 
   try {
