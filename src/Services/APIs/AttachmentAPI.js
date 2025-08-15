@@ -71,6 +71,7 @@ export const DownloadAttachments = async (attachmentIds) => {
     },
     data,
     responseType: "blob",
+    withCredentials: true,
   };
 
   try {
