@@ -603,15 +603,15 @@ const Handlers = () => {
     dispatch(closeAttachmentPreview());
   };
 
-  useEffect(() => {
-    dispatch(resetSelectedAttachments());
-  }, [attachmentTableData]);
+  // useEffect(() => {
+  //   dispatch(resetSelectedAttachments());
+  // }, [attachmentTableData]);
 
   return {
     isLoading,
     handleLoad,
     handleLogin,
-    handleLogout,
+    handleLogout, 
     isGroupVisible,
     showGroupMenu,
     hideGroupMenu,
