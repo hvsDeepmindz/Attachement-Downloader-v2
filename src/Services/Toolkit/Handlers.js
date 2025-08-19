@@ -447,13 +447,13 @@ const Handlers = () => {
   };
 
   const handleAttachmentClick = async (folder) => {
+    pushHistory(`/attachments/${encodeURIComponent(folder.display_name)}`);
     dispatch(setSelectedFolderView(folder.display_name));
     dispatch(setCurrentPage(1));
     await fetchAttachmentData(folder.display_name);
-    pushHistory(`/attachments/${encodeURIComponent(folder.display_name)}`);
-  };
+  };  
 
-  const handleDownloadAttachments = async (attachmentId) => {
+  const handleDownloadAttachments = async (attachmentId) => { 
     dispatch(setIsDownloadingLoad(true));
     try {
       const idsToDownload = attachmentId

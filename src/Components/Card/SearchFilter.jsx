@@ -120,7 +120,7 @@ const SearchFilter = ({
               </div>
             ) : null}
 
-            {attachmentView === true ? (
+              {attachmentView === true ? (
               <div className="w-auto">
                 <ViewBtn
                   btnTitle={
@@ -137,7 +137,6 @@ const SearchFilter = ({
                   }
                   btnDisable={isDownloadingLoad}
                   btnView={"table"}
-                  // Call without argument so it picks from selectedAttachmentIds
                   btnFunc={() => handleDownloadAttachments()}
                 />
               </div>

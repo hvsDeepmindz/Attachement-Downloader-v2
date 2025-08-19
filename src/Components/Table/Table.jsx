@@ -3,7 +3,8 @@ import React, { useEffect, useState } from "react";
 import Handlers from "../../Services/Toolkit/Handlers";
 import { LuLoader, LuLoaderCircle } from "react-icons/lu";
 import MessageFolderData from "../../Services/Data/MessageFolderData";
-import { Empty, Tooltip } from "antd";
+import { motion } from "framer-motion";
+import { Empty, Skeleton, Tooltip } from "antd";
 
 const Table = ({
   tableTitle,
@@ -32,7 +33,7 @@ const Table = ({
   } = Handlers();
 
   const [isFolderOpen, setIsFolderOpen] = useState(true);
-  const rows = Array.isArray(data) ? data : []; 
+  const rows = Array.isArray(data) ? data : [];
   const perPageOptions = [10, 15, 20, 25, 30, 35, 40, 45, 50];
   const startIndex = Math.max(0, (currentPage - 1) * itemsPerPage);
   const endIndex = Math.min(startIndex + itemsPerPage, totalItems || 0);
@@ -176,17 +177,34 @@ const Table = ({
               </thead>
               {isLoading ? (
                 <tbody>
-                  <tr>
-                    <td
-                      colSpan={columns.length + (attachmentView ? 2 : 1)}
-                      className="py-[4rem] px-[4rem] text-center"
+                  {[...Array(18)].map((_, index) => (
+                    <motion.tr
+                      key={index}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.4, delay: index * 0.1 }}
+                      className={`${
+                        index % 2 === 0 ? "bg-[#f9f9ff]" : "bg-white"
+                      } border-t   border-[#e5e5e5]`}
                     >
-                      <LuLoaderCircle
-                        size={30}
-                        className="animate-spin text-[#765EA5] mx-auto"
-                      />
-                    </td>
-                  </tr>
+                      {Array.from({
+                        length: columns.length + (attachmentView ? 2 : 1),
+                      }).map((__, colIndex) => (
+                        <td key={colIndex} className="px-[2rem] py-[1rem]">
+                          <motion.div
+                            initial={{ backgroundPosition: "-200% 0" }}
+                            animate={{ backgroundPosition: "200% 0" }}
+                            transition={{
+                              duration: 1.2,
+                              repeat: Infinity,
+                              ease: "linear",
+                            }}
+                            className="h-16 w-3/4 rounded-md bg-gradient-to-r from-[#e0e0e0] via-[#f0f0f0] to-[#e0e0e0] bg-[length:200%_100%]"
+                          />
+                        </td>
+                      ))}
+                    </motion.tr>
+                  ))}
                 </tbody>
               ) : (
                 <tbody>
