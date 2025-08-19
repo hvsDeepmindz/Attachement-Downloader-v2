@@ -105,7 +105,7 @@ const AttachmentView = () => {
       header: "Attachment",
       accessor: (row, index) => (
         <button
-          onClick={() => handleOpenAttachmentPreview(row)}
+          // onClick={() => handleOpenAttachmentPreview(row)}
           className={`flex items-center justify-start border px-[2rem] py-[0.3rem] rounded-full ${
             index % 2 === 0 ? "bg-[#E4E2F2]" : "bg-[#f1f1f1]"
           }`}
@@ -194,16 +194,6 @@ const AttachmentView = () => {
           attachmentView={true}
           totalPages={attachmentTableData?.totalPages || 0}
           totalItems={attachmentTableData?.totalItems || 0}
-          handlePageChange={(page) =>
-            handlePageChange(page, "attachment", decodeURIComponent(folderName))
-          }
-          handleItemsPerPageChange={(val) =>
-            handleItemsPerPageChange(
-              val,
-              "attachment",
-              decodeURIComponent(folderName)
-            )
-          }
         />
       </div>
     </>

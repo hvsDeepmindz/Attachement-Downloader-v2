@@ -137,8 +137,9 @@ const DashboardMain = () => {
           <div
             className={`flex justify-end max-sm:w-full items-center max-sm:flex-col gap-[2rem] max-xl:mt-[2rem]`}
           >
-            <p className={`text-[1.8rem] font-normal text-[#666666]`}>
-              Last sync at {dashboardData?.last_synced}
+            <p className={`text-[1.8rem] font-[500] text-[#666666]`}>
+              Last synced: &nbsp;
+              <span className={`font-[500] text-[1.8rem] text-[#344471]`}>{dashboardData?.last_synced}</span>
             </p>
             <div
               className={`w-auto max-sm:w-full justify-end hidden max-xl:flex ${
