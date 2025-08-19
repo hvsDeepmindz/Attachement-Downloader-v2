@@ -197,7 +197,6 @@ const Table = ({
                         className={`${
                           rowIndex % 2 === 0 ? "bg-[#E4E2F2]" : "bg-white"
                         } border-t border-[#e5e5e5] hover:opacity-[0.8] transition-all duration-[0.2s] ease-in-out cursor-pointer`}
-                        onClick={() => toggleAttachmentSelect(row.id)}
                       >
                         {attachmentView && (
                           <td

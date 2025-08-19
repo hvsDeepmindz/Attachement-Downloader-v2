@@ -61,7 +61,7 @@ export const FolderBasedAttachmentData = async (
       return [];
     });
 };
-
+  
 export const DownloadAttachments = async (attachmentIds) => {
   const data = JSON.stringify(
     Array.isArray(attachmentIds) ? attachmentIds : [attachmentIds]

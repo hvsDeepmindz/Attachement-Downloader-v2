@@ -35,7 +35,7 @@ const SearchFilter = ({
   return (
     <>
       <div
-        className={`pt-[4rem] pb-[3rem] px-[10rem] max-xl:px-[5rem] max-md:px-[2rem] relative w-auto flex flex-col 
+        className={`pt-[4rem] pb-[3rem] px-[10rem] max-xl:px-[5rem] max-md:px-[2rem] relative w-auto flex flex-col  
         max-xl:gap-[2rem]`}
       >
         <div className={`flex items-center gap-[1rem] justify-start`}>

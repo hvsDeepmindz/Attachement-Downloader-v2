@@ -603,6 +603,10 @@ const Handlers = () => {
     dispatch(closeAttachmentPreview());
   };
 
+  useEffect(() => {
+    dispatch(resetSelectedAttachments());
+  }, [attachmentTableData]);
+
   return {
     isLoading,
     handleLoad,
