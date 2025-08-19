@@ -1,6 +1,7 @@
 import React from "react";
 import { LuLoader, LuLoaderCircle } from "react-icons/lu";
 import { Link } from "react-router-dom";
+import Loader from "../Design/Loader";
 
 const APIErrorView = () => {
   return (
@@ -11,7 +12,7 @@ const APIErrorView = () => {
         <div
           className={`flex flex-col gap-[1rem] justify-center items-center text-center h-full`}
         >
-          <LuLoaderCircle size={50} className={`animate-spin text-[blue]`}/>
+          <Loader />
           {/* <h2 className={`text-[3rem] font-normal text-[orangered]`}>
             <i className="fa-regular fa-face-frown" />
             &nbsp; Error while fetching data

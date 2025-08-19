@@ -6,6 +6,7 @@ import Handlers from "../../Services/Toolkit/Handlers";
 import { LuLoaderCircle } from "react-icons/lu";
 import ActionBtn from "../Btns/ActionBtn";
 import ViewBtn from "../Btns/ViewBtn";
+import Loader from "../Design/Loader";
 
 const SearchFilter = ({
   pageTitle,
@@ -101,13 +102,7 @@ const SearchFilter = ({
             showUpload ? (
               <div className={`w-auto flex justify-end`}>
                 <ViewBtn
-                  btnTitle={
-                    isDownloadExcel ? (
-                      <LuLoaderCircle size={20} className={`animate-spin`} />
-                    ) : (
-                      "Excel"
-                    )
-                  }
+                  btnTitle={isDownloadExcel ? <Loader /> : "Excel"}
                   btnIcon={
                     isDownloadExcel ? null : (
                       <i className={`fa-solid fa-download`} />
@@ -120,16 +115,10 @@ const SearchFilter = ({
               </div>
             ) : null}
 
-              {attachmentView === true ? (
+            {attachmentView === true ? (
               <div className="w-auto">
                 <ViewBtn
-                  btnTitle={
-                    isDownloadingLoad ? (
-                      <LuLoaderCircle size={20} className="animate-spin" />
-                    ) : (
-                      "Download All"
-                    )
-                  }
+                  btnTitle={isDownloadingLoad ? <Loader /> : "Download All"}
                   btnIcon={
                     isDownloadingLoad ? null : (
                       <i className="fa-solid fa-download" />

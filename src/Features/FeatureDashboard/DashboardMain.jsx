@@ -13,6 +13,7 @@ import { LuLoaderCircle } from "react-icons/lu";
 import { ProcessDuplicate } from "../../Services/APIs/ProcessDuplicateAPI";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Loader from "../../Components/Design/Loader";
 
 const DashboardMain = () => {
   const {
@@ -114,13 +115,7 @@ const DashboardMain = () => {
                 }`}
               >
                 <ActionBtn
-                  btnTitle={
-                    processloading ? (
-                      <LuLoaderCircle size={20} className="animate-spin" />
-                    ) : (
-                      "Process Duplicates"
-                    )
-                  }
+                  btnTitle={processloading ? <Loader /> : "Process Duplicates"}
                   btnIcon={
                     processloading ? null : (
                       <i className="fa-regular fa-clone" />

@@ -11,6 +11,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import APIErrorView from "../../Components/Error/APIErrorView";
 import { Modal } from "antd";
+import Loader from "../../Components/Design/Loader";
 
 const AttachmentView = () => {
   const { title: folderName } = useParams();
@@ -130,7 +131,7 @@ const AttachmentView = () => {
                   index % 2 === 0 ? "bg-[#E4E2F2]" : "bg-white"
                 }`}
               >
-                <LuLoaderCircle className="animate-spin text-[1.8rem] text-[grey]" />
+                <Loader />
               </div>
             ) : (
               <img
