@@ -32,7 +32,7 @@ const Table = ({
   } = Handlers();
 
   const [isFolderOpen, setIsFolderOpen] = useState(true);
-  const rows = Array.isArray(data) ? data : [];
+  const rows = Array.isArray(data) ? data : []; 
   const perPageOptions = [10, 15, 20, 25, 30, 35, 40, 45, 50];
   const startIndex = Math.max(0, (currentPage - 1) * itemsPerPage);
   const endIndex = Math.min(startIndex + itemsPerPage, totalItems || 0);
