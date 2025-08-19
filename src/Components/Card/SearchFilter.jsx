@@ -3,7 +3,6 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { AttachmentData } from "../../Services/Data/AttachmentData";
 import Handlers from "../../Services/Toolkit/Handlers";
-import { LuLoaderCircle } from "react-icons/lu";
 import ActionBtn from "../Btns/ActionBtn";
 import ViewBtn from "../Btns/ViewBtn";
 import Loader from "../Design/Loader";

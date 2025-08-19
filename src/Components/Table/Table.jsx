@@ -1,7 +1,6 @@
 /* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from "react";
 import Handlers from "../../Services/Toolkit/Handlers";
-import { LuLoader, LuLoaderCircle } from "react-icons/lu";
 import MessageFolderData from "../../Services/Data/MessageFolderData";
 import { motion } from "framer-motion";
 import { Empty, Skeleton, Tooltip } from "antd";

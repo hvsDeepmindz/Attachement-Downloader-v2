@@ -6,7 +6,6 @@ import SearchFilter from "../../Components/Card/SearchFilter";
 import Table from "../../Components/Table/Table";
 import Handlers from "../../Services/Toolkit/Handlers";
 import { AttachmentData } from "../../Services/Data/AttachmentData";
-import { LuLoaderCircle } from "react-icons/lu";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import APIErrorView from "../../Components/Error/APIErrorView";

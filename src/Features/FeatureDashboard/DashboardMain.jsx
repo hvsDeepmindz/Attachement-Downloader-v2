@@ -9,7 +9,6 @@ import DashboardMail from "./DashboardMail";
 import DashboardAttachments from "./DashboardAttachments";
 import Handlers from "../../Services/Toolkit/Handlers";
 import { useNavigate } from "react-router-dom";
-import { LuLoaderCircle } from "react-icons/lu";
 import { ProcessDuplicate } from "../../Services/APIs/ProcessDuplicateAPI";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";

@@ -1,5 +1,4 @@
 import React from "react";
-import { LuLoader, LuLoaderCircle } from "react-icons/lu";
 import { Link } from "react-router-dom";
 import Loader from "../Design/Loader";
 
