@@ -153,7 +153,7 @@ const Table = ({
                           showDashboard
                             ? "cursor-pointer"
                             : "cursor-not-allowed"
-                        } w-6 h-6`}
+                        } w-8 h-8`}
                       />
                     </th>
                   )}
@@ -196,7 +196,8 @@ const Table = ({
                         key={rowIndex}
                         className={`${
                           rowIndex % 2 === 0 ? "bg-[#E4E2F2]" : "bg-white"
-                        } border-t border-[#e5e5e5] hover:opacity-[0.8] transition-all duration-[0.2s] ease-in-out cursor-grab`}
+                        } border-t border-[#e5e5e5] hover:opacity-[0.8] transition-all duration-[0.2s] ease-in-out cursor-pointer`}
+                        onClick={() => toggleAttachmentSelect(row.id)}
                       >
                         {attachmentView && (
                           <td
@@ -208,7 +209,7 @@ const Table = ({
                               type="checkbox"
                               checked={selectedAttachmentIds.includes(row.id)}
                               onChange={() => toggleAttachmentSelect(row.id)}
-                              className="cursor-pointer w-6 h-6"
+                              className="cursor-pointer w-8 h-8"
                             />
                           </td>
                         )}

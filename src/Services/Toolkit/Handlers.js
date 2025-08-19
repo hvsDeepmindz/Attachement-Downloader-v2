@@ -366,7 +366,7 @@ const Handlers = () => {
 
     if (trimmed === "") {
       if (isAttachment) {
-        fetchAttachmentData(routeParamTitle);
+        fetchAttachmentData(routeParamTitle, 1, itemsPerPage);
       } else {
         fetchMessageData(1, itemsPerPage);
       }
@@ -377,26 +377,35 @@ const Handlers = () => {
 
     if (isAttachment) {
       const decodedValue = decodeURIComponent(routeParamTitle);
-      const matchedItem =
-        selectedAttachment?.value === decodedValue
-          ? selectedAttachment
-          : AttachmentData.find((item) => item.value === decodedValue);
+      const folder =
+        attachmentFolderData.find((f) => f.display_name === decodedValue) ||
+        null;
 
-      const isDuplicate =
-        matchedItem?.title === "Dupliacte CVs" ||
-        matchedItem?.title === "Dupliacte JDs";
-
-      const res = await AttachmentTableData(
-        decodedValue,
-        isDuplicate ? 1 : 0,
-        1,
-        itemsPerPage,
-        trimmed
-      );
-
-      if (res) {
-        dispatch(setAttachmentTableData(res));
-        dispatch(setCurrentPage(1));
+      if (folder) {
+        const res = await FolderBasedAttachmentData(
+          folder.id,
+          itemsPerPage,
+          1,
+          trimmed
+        );
+        if (res?.success && res?.attachments) {
+          dispatch(
+            setAttachmentTableData({
+              attachments: res.attachments || [],
+              totalPages: Number(res.total_pages) || 0,
+              totalItems: Number(res.total_items) || 0,
+            })
+          );
+          dispatch(setCurrentPage(1));
+        } else {
+          dispatch(
+            setAttachmentTableData({
+              attachments: [],
+              totalPages: 0,
+              totalItems: 0,
+            })
+          );
+        }
       }
     } else {
       const res = await SearchMessage({

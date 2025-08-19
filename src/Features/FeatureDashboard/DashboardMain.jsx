@@ -172,13 +172,7 @@ const DashboardMain = () => {
         >
           <ViewBtn
             btnView="content"
-            btnTitle={
-              isLoading && syncPendingItems > 0
-                ? `Syncing ${syncPendingItems} item${
-                    syncPendingItems !== 1 ? "s" : ""
-                  }...`
-                : "Sync"
-            }
+            btnTitle={isLoading ? `Syncing...` : "Sync"}
             btnFunc={!isLoading ? fetchSyncData : undefined}
             btnIcon={
               <i
@@ -187,7 +181,7 @@ const DashboardMain = () => {
                 }`}
               />
             }
-            btnDisable={!showDashboard}
+            btnDisable={isLoading}
           />
         </div>
       </section>

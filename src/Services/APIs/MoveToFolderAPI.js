@@ -15,6 +15,7 @@ export const MoveToFolderData = async (targetFolderId, attachmentIds) => {
       accept: "application/json",
       "Content-Type": "application/json",
     },
+    withCredentials: true,
     data,
   };
 

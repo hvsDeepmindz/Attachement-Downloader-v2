@@ -31,14 +31,22 @@ export const AttachmentTableData = async (
 export const FolderBasedAttachmentData = async (
   folderid,
   pageSize = 10,
-  pageNo = 1
+  pageNo = 1,
+  searchText = ""
 ) => {
+  const params = new URLSearchParams({
+    attachment_folder_id: folderid,
+    page_size: pageSize,
+    page_num: pageNo,
+  });
+  if (searchText.trim()) {
+    params.append("search_text", searchText.trim());
+  }
+
   let config = {
     method: "get",
     maxBodyLength: Infinity,
-    url: `${
-      import.meta.env.VITE_REACT_APP_BASE_URL
-    }/attachment/all?attachment_folder_id=${folderid}&page_size=${pageSize}&page_num=${pageNo}`,
+    url: `${import.meta.env.VITE_REACT_APP_BASE_URL}/attachment/all?${params}`,
     headers: {
       accept: "application/json",
     },
@@ -47,9 +55,7 @@ export const FolderBasedAttachmentData = async (
 
   return axios
     .request(config)
-    .then((response) => {
-      return response?.data;
-    })
+    .then((response) => response?.data)
     .catch((error) => {
       console.log(error);
       return [];
@@ -71,6 +77,7 @@ export const DownloadAttachments = async (attachmentIds) => {
     },
     data,
     responseType: "blob",
+    withCredentials: true,
   };
 
   try {
@@ -128,6 +135,7 @@ export const ExcelDownload = async (attachmentId) => {
     },
     data: JSON.stringify(attachmentId),
     responseType: "blob",
+    withCredentials: true,
   };
 
   try {

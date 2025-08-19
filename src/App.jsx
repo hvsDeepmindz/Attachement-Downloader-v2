@@ -6,12 +6,14 @@ import LoginSuccess from "./Pages/Auth/LoginSuccess";
 import Attachments from "./Pages/Attachments/Attachments";
 import Messages from "./Pages/Messages/Messages";
 import AttachmentView from "./Features/FeatureAttachments/AttachmentView";
+import Nav from "./Components/Header/Nav";
 
 const App = () => {
   return (
     <>
       <BrowserRouter basename="/outlook_mail_loader">
-        <div className={`w-full relative object-cover bg-white`}>
+        <Nav />
+        <div className={`w-full relative object-cover mt-[9rem] bg-white`}>
           <Routes>
             <Route path="/" element={<Navigate to={"/login"} />}></Route>
             <Route path="/login" element={<Login />}></Route>

@@ -28,9 +28,6 @@ const Messages = () => {
   } = Handlers();
 
   useEffect(() => {
-    if (!dashboardData?.user_name || !dashboardData?.user_mail) {
-      fetchDashboardData();
-    }
     fetchMessageFolderData();
   }, []);
 
@@ -87,8 +84,7 @@ const Messages = () => {
 
   return (
     <>
-      <Nav />
-      <div className="relative object-cover w-full h-screen mt-[9rem] bg-[#f2f2f2]">
+      <div className="relative object-cover w-full h-screen bg-[#f2f2f2]">
         <SearchFilter
           pageTitle="Messages"
           filterView={false}

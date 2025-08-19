@@ -156,8 +156,7 @@ const AttachmentView = () => {
         position="top-center"
         className={`custom-toast-container`}
       />
-      <Nav />
-      <div className="relative w-full h-screen mt-[9rem] bg-[#f2f2f2]">
+      <div className="relative w-full h-screen bg-[#f2f2f2]">
         <SearchFilter
           pageTitle="Attachments"
           filterView={false}
