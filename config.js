@@ -5,3 +5,4 @@ export const userLogin = `${
 export const userLogout = `${
   import.meta.env.VITE_REACT_APP_BASE_URL
 }/auth/logout`;
+  
