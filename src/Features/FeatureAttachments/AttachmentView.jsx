@@ -9,7 +9,7 @@ import { AttachmentData } from "../../Services/Data/AttachmentData";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import APIErrorView from "../../Components/Error/APIErrorView";
-import { Modal } from "antd";
+import { Modal, Tooltip } from "antd";
 import Loader from "../../Components/Design/Loader";
 
 const AttachmentView = () => {
@@ -104,19 +104,27 @@ const AttachmentView = () => {
     {
       header: "Attachment",
       accessor: (row, index) => (
-        <button
-          // onClick={() => handleOpenAttachmentPreview(row)}
-          className={`flex items-center justify-start border px-[2rem] py-[0.3rem] rounded-full ${
-            index % 2 === 0 ? "bg-[#E4E2F2]" : "bg-[#f1f1f1]"
-          }`}
+        <Tooltip
+          title={row.name}
+          color="#fff"
+          overlayInnerStyle={{
+            color: "#000",
+            background: "#fff",
+          }}
         >
-          <img
-            src={`${import.meta.env.BASE_URL}/Media/doc.png`}
-            loading="lazy"
-            className="w-[16px] h-[16px]"
-          />
-          &nbsp; {row.name}
-        </button>
+          <button
+            className={`flex items-center justify-start border px-[2rem] py-[0.3rem] rounded-full ${
+              index % 2 === 0 ? "bg-[#E4E2F2]" : "bg-[#f1f1f1]"
+            }`}
+          >
+            <img
+              src={`${import.meta.env.BASE_URL}/Media/doc.png`}
+              loading="lazy"
+              className="w-[16px] h-[16px]"
+            />
+            &nbsp; {row.name}
+          </button>
+        </Tooltip>
       ),
     },
     {
@@ -133,14 +141,23 @@ const AttachmentView = () => {
                 <Loader />
               </div>
             ) : (
-              <img
-                src={`${import.meta.env.BASE_URL}/Media/download.png`}
-                loading="lazy"
-                onClick={() => handleDownloadAttachments(row.id)}
-                className={`cursor-pointer border w-[30px] h-[30px] px-[0.3rem] py-[0.1rem] rounded-md ${
-                  index % 2 === 0 ? "bg-[#E4E2F2]" : "bg-white"
-                }`}
-              />
+              <Tooltip
+                title="Download Attachment"
+                color="#fff"
+                overlayInnerStyle={{
+                  color: "#000",
+                  background: "#fff",
+                }}
+              >
+                <img
+                  src={`${import.meta.env.BASE_URL}/Media/download.png`}
+                  loading="lazy"
+                  onClick={() => handleDownloadAttachments(row.id)}
+                  className={`cursor-pointer border w-[30px] h-[30px] px-[0.3rem] py-[0.1rem] rounded-md ${
+                    index % 2 === 0 ? "bg-[#E4E2F2]" : "bg-white"
+                  }`}
+                />
+              </Tooltip>
             )}
           </div>
         ) : (
@@ -194,6 +211,7 @@ const AttachmentView = () => {
           attachmentView={true}
           totalPages={attachmentTableData?.totalPages || 0}
           totalItems={attachmentTableData?.totalItems || 0}
+          tooltipShow={false}
         />
       </div>
     </>

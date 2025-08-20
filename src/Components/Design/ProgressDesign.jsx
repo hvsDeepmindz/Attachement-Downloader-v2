@@ -84,7 +84,14 @@ const ProgressDesign = ({
           {progressTotal}
         </p>
       </div>
-      <Tooltip title={progressTitle}>
+      <Tooltip
+        title={progressTitle}
+        color="#fff"
+        overlayInnerStyle={{
+          color: "#000",
+          background: "#fff",
+        }}
+      >
         <div className="absolute inset-0 flex items-center justify-center pointer-events-auto" />
       </Tooltip>
     </div>

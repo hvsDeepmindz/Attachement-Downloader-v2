@@ -13,6 +13,7 @@ const Table = ({
   folderView = false,
   totalPages = 0,
   totalItems = 0,
+  tooltipShow,
 }) => {
   const {
     showDashboard,
@@ -245,18 +246,38 @@ const Table = ({
                               key={colIndex}
                               className="px-[2rem] py-[1rem] text-[1.6rem] font-medium text-[#333333]"
                             >
-                              <Tooltip
-                                title={
-                                  <div style={{ color: "#000" }}>
-                                    {isElement ? "" : accessorOutput}
-                                  </div>
-                                }
-                                color="#fff"
-                                overlayInnerStyle={{
-                                  color: "#000",
-                                  background: "#fff",
-                                }}
-                              >
+                              {tooltipShow === true ? (
+                                <Tooltip
+                                  title={
+                                    <div style={{ color: "#000" }}>
+                                      {isElement ? "" : accessorOutput}
+                                    </div>
+                                  }
+                                  color="#fff"
+                                  overlayInnerStyle={{
+                                    color: "#000",
+                                    background: "#fff", 
+                                  }}
+                                >
+                                  <span>
+                                    {isElement ? (
+                                      accessorOutput
+                                    ) : typeof accessorOutput === "string" &&
+                                      column.header === "Attachment" ? (
+                                      <a
+                                        href={accessorOutput}
+                                        className="text-blue-600 underline ml-2"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                      >
+                                        {accessorOutput.split("/").pop()}
+                                      </a>
+                                    ) : (
+                                      accessorOutput
+                                    )}
+                                  </span>
+                                </Tooltip>
+                              ) : (
                                 <span>
                                   {isElement ? (
                                     accessorOutput
@@ -274,7 +295,7 @@ const Table = ({
                                     accessorOutput
                                   )}
                                 </span>
-                              </Tooltip>
+                              )}
                             </td>
                           );
                         })}

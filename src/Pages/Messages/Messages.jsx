@@ -101,6 +101,7 @@ const Messages = () => {
           folderView={true}
           totalPages={messageTableData?.totalPages || 0}
           totalItems={messageTableData?.totalItems || 0}
+          tooltipShow={true}
         />
       </div>
     </>

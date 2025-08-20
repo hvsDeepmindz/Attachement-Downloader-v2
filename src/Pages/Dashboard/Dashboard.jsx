@@ -19,7 +19,7 @@ const Dashboard = () => {
   return (
     <>
       <ToastContainer
-        autoClose={2000}
+        autoClose={2000}  
         position="top-center"
         className={`custom-toast-container`}
       />
