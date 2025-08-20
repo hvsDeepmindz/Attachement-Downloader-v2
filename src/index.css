@@ -56,6 +56,51 @@ body {
   line-height: 1.5;
 }
 
+.custom-pagination .ant-pagination-item {
+  border-radius: 9999px;
+  border: 1px solid #d2d2d2;
+  color: #666666;
+}
+
+.custom-pagination .ant-pagination-item-active {
+  background-color: #6B46C1;
+  border-color: transparent;
+  color: white;
+}
+
+.custom-pagination .ant-pagination-item-active a {
+  color: white !important;
+}
+
+.custom-pagination .ant-pagination-item:hover {
+  border-color: #623AA2;
+  color: #623AA2;
+}
+
+.custom-pagination .ant-pagination-prev .ant-pagination-item-link,
+.custom-pagination .ant-pagination-next .ant-pagination-item-link {
+  border-radius: 9999px;
+  border: 1px solid #d2d2d2;
+  color: #623AA2;
+}
+
+.custom-pagination .ant-pagination-disabled .ant-pagination-item-link {
+  color: #a3a0a0 !important;
+  cursor: not-allowed;
+}
+
+.custom-pagination .ant-pagination-options {
+  display: inline-flex !important;
+  visibility: visible !important;
+}
+
+.custom-pagination .ant-pagination-options-size-changer,
+.custom-pagination .ant-pagination-options-quick-jumper {
+  display: inline-flex !important;
+  visibility: visible !important;
+}
+
+
 @media(max-width: 1500px) {
   html {
     font-size: 60%;
