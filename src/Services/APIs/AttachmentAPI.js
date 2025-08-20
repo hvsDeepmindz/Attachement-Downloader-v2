@@ -61,7 +61,7 @@ export const FolderBasedAttachmentData = async (
       return [];
     });
 };
-  
+
 export const DownloadAttachments = async (attachmentIds) => {
   const data = JSON.stringify(
     Array.isArray(attachmentIds) ? attachmentIds : [attachmentIds]
@@ -82,8 +82,6 @@ export const DownloadAttachments = async (attachmentIds) => {
 
   try {
     const response = await axios.request(config);
-
-    // Get filename from Content-Disposition header (if provided)
     let fileName =
       Array.isArray(attachmentIds) && attachmentIds.length > 1
         ? "attachments.zip"
@@ -137,7 +135,7 @@ export const ExcelDownload = async (attachmentId) => {
     responseType: "blob",
     withCredentials: true,
   };
-  
+
   try {
     const response = await axios.request(config);
     const blob = new Blob([response.data], {

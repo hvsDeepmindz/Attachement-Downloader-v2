@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import Handlers from "../../Services/Toolkit/Handlers";
 import MessageFolderData from "../../Services/Data/MessageFolderData";
 import { motion } from "framer-motion";
-import { Empty, Skeleton, Tooltip } from "antd";
+import { Empty, Tooltip } from "antd";
 
 const Table = ({
   tableTitle,
@@ -39,7 +39,6 @@ const Table = ({
 
   return (
     <div
-      title={tableTitle}
       className={`px-[10rem] pb-[1rem] relative w-full rounded-xl max-xl:px-[5rem] max-md:px-[2rem]`}
     >
       <div className={`flex items-center gap-[2rem] w-full h-auto relative`}>
@@ -115,8 +114,7 @@ const Table = ({
         ) : null}
         {!isFolderOpen ? (
           <div
-            className={`absolute top-[-1rem] left-[1rem] z-20 rounded-full px-[1rem] py-[1rem] 
-            bg-[#9476d1]`}
+            className={`absolute top-[-1rem] left-[1rem] z-20 rounded-full px-[1rem] py-[1rem] bg-[#9476d1]`}
           >
             {!isFolderOpen && (
               <i
@@ -184,7 +182,7 @@ const Table = ({
                       transition={{ duration: 0.4, delay: index * 0.1 }}
                       className={`${
                         index % 2 === 0 ? "bg-[#f9f9ff]" : "bg-white"
-                      } border-t   border-[#e5e5e5]`}
+                      } border-t border-[#e5e5e5]`}
                     >
                       {Array.from({
                         length: columns.length + (attachmentView ? 2 : 1),
@@ -242,27 +240,41 @@ const Table = ({
                           const accessorOutput = column.accessor(row, rowIndex);
                           const isElement =
                             React.isValidElement(accessorOutput);
-
                           return (
                             <td
                               key={colIndex}
                               className="px-[2rem] py-[1rem] text-[1.6rem] font-medium text-[#333333]"
                             >
-                              {isElement ? (
-                                accessorOutput
-                              ) : typeof accessorOutput === "string" &&
-                                column.header === "Attachment" ? (
-                                <a
-                                  href={accessorOutput}
-                                  className="text-blue-600 underline ml-2"
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                >
-                                  {accessorOutput.split("/").pop()}
-                                </a>
-                              ) : (
-                                accessorOutput
-                              )}
+                              <Tooltip
+                                title={
+                                  <div style={{ color: "#000" }}>
+                                    {isElement ? "" : accessorOutput}
+                                  </div>
+                                }
+                                color="#fff"
+                                overlayInnerStyle={{
+                                  color: "#000",
+                                  background: "#fff",
+                                }}
+                              >
+                                <span>
+                                  {isElement ? (
+                                    accessorOutput
+                                  ) : typeof accessorOutput === "string" &&
+                                    column.header === "Attachment" ? (
+                                    <a
+                                      href={accessorOutput}
+                                      className="text-blue-600 underline ml-2"
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                    >
+                                      {accessorOutput.split("/").pop()}
+                                    </a>
+                                  ) : (
+                                    accessorOutput
+                                  )}
+                                </span>
+                              </Tooltip>
                             </td>
                           );
                         })}
