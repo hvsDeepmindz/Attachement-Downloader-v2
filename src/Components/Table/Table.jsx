@@ -159,7 +159,8 @@ const Table = ({
                   <th
                     className={`${
                       attachmentView === true ? "left-[5rem]" : "left-0"
-                    } sticky z-10 bg-[#765EA5] text-white px-[2rem] py-[1.5rem] text-left text-[1.6rem] font-[600]`}
+                    } sticky z-10 bg-[#765EA5] text-white px-[2rem] py-[1.5rem] text-left text-[1.6rem] 
+                    font-[600]`}
                   >
                     S. No.
                   </th>
@@ -238,7 +239,30 @@ const Table = ({
                           {startIndex + rowIndex + 1}.
                         </td>
                         {columns.map((column, colIndex) => {
-                          const accessorOutput = column.accessor(row, rowIndex);
+                          let accessorOutput = column.accessor(row, rowIndex);
+
+                          if (folderView && selectFolderView === "Drafts") {
+                            if (
+                              column.header === "Sender Name" &&
+                              !row.sender_name
+                            ) {
+                              accessorOutput = (
+                                <span className="text-[orangered] font-semibold">
+                                  [Draft]
+                                </span>
+                              );
+                            }
+                            if (
+                              column.header === "Sender Mail" &&
+                              !row.sender_mail
+                            ) {
+                              accessorOutput = (
+                                <span className="text-gray-500">
+                                  (No subject)
+                                </span>
+                              );
+                            }
+                          }
                           const isElement =
                             React.isValidElement(accessorOutput);
                           return (
@@ -321,11 +345,13 @@ const Table = ({
       {/* Pagination View */}
       <div className="flex justify-end max-md:flex-col gap-[2rem] items-center py-[1rem] mt-[2rem]">
         <div className="item-per-page flex items-center gap-[1rem]">
-          <span className="text-[1.6rem] text-black font-normal">
+          <span className="text-[1.6rem] text-[#414141] font-normal">
             {totalItems > 0
               ? `${startIndex + 1} - ${Math.min(endIndex, totalItems)}`
               : "0 - 0"}
-            <span className="text-[grey]">&nbsp; Out of {totalItems || 0}</span>
+            <span className="text-[#414141]">
+              &nbsp; Out of {totalItems || 0}
+            </span>
           </span>
         </div>
         <Pagination
