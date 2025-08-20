@@ -10,7 +10,7 @@ import "react-toastify/dist/ReactToastify.css";
 const Dashboard = () => {
   const { fetchDashboardData, dashboardData } = Handlers();
 
-  useEffect(() => {
+  useEffect(() => { 
     if (!dashboardData) {
       fetchDashboardData();
     }

@@ -253,11 +253,11 @@ const Table = ({
                               );
                             }
                             if (
-                              column.header === "Sender Mail" &&
-                              !row.sender_mail
+                              column.header === "Subject" &&
+                              !row.subject && row.subject.trim() === "" 
                             ) {
                               accessorOutput = (
-                                <span className="text-gray-500">
+                                <span className="text-[#414141] font-[600]">
                                   (No subject)
                                 </span>
                               );
