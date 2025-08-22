@@ -89,8 +89,7 @@ const SearchFilter = ({
           >
             {attachmentView === true && selectedAttachmentIds.length > 0 ? (
               <>
-                <div className={`flex items-center gap-[1rem] max-sm:w-full`}>
-                  {/* <p className={`text-[#4B4B4B] text-[1.8rem] max-sm:hidden`}>Move to</p> */}
+                <div className="flex items-center gap-[1rem] max-sm:w-full">
                   <select
                     name="attachments"
                     value={selectedAttachment ?? ""}
@@ -100,22 +99,40 @@ const SearchFilter = ({
                         setModalOpen(true);
                       }
                     }}
-                    className={`bg-white border-[#765EA5] border-[1px] outline-none px-[2rem] py-[1rem] rounded-xl cursor-pointer font-normal text-[1.8rem] text-[#4D4D4D] max-sm:w-full`}
+                    className="bg-white border-[#765EA5] border-[1px] outline-none px-[2rem] py-[1rem] rounded-xl cursor-pointer font-normal text-[1.8rem] text-[#4D4D4D] max-sm:w-full"
                   >
                     <option value="">Move To</option>
                     {attachmentFolderData.map((folder) => (
                       <option key={folder.id} value={folder.id}>
-                        {folder.display_name
-                          .split(" ")
-                          .map(
-                            (word) =>
-                              word.charAt(0).toUpperCase() + word.slice(1)
-                          )
-                          .join(" ")}
+                        {folder.display_name}
                       </option>
                     ))}
                   </select>
                 </div>
+
+                <Modal
+                  open={modalOpen}
+                  onOk={() => {
+                    handleMoveToFolder(targetFolder);
+                    setSelectedAttachment("");
+                    setTargetFolder(null);
+                    setModalOpen(false);
+                  }}
+                  onCancel={() => {
+                    setSelectedAttachment("");
+                    setTargetFolder(null);
+                    setModalOpen(false);
+                  }}
+                  okText="Yes"
+                  cancelText="No"
+                >
+                  <p className="text-[2rem] font-[600] text-[#658abb]">
+                    {`Want move to ${
+                      attachmentFolderData.find((f) => f.id == targetFolder)
+                        ?.display_name || ""
+                    } ?`}
+                  </p>
+                </Modal>  
               </>
             ) : null}
 

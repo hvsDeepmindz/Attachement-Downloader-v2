@@ -540,7 +540,8 @@ const Handlers = () => {
 
       if (res) {
         toast.success("Attachment(s) moved successfully");
-        toggleAttachmentSelect([]);
+        dispatch(resetSelectedAttachments());
+        dispatch(setSelectedAttachment(""));
         const currentFolder = attachmentFolderData.find(
           (f) => f.display_name === selectFolderView
         );
