@@ -87,13 +87,13 @@ const SearchFilter = ({
           <div
             className={`flex justify-end gap-[2rem] max-sm:flex-col max-sm:w-full`}
           >
-            {attachmentView === true && selectedAttachmentIds.length   > 0 ? (
+            {attachmentView === true && selectedAttachmentIds.length > 0 ? (
               <>
                 <div className={`flex items-center gap-[1rem] max-sm:w-full`}>
                   {/* <p className={`text-[#4B4B4B] text-[1.8rem] max-sm:hidden`}>Move to</p> */}
                   <select
                     name="attachments"
-                    value={selectedAttachment}
+                    value={selectedAttachment ?? ""}
                     onChange={(e) => {
                       if (e.target.value) {
                         setTargetFolder(e.target.value);
@@ -123,9 +123,7 @@ const SearchFilter = ({
               okText="Yes"
               cancelText="No"
             >
-              <p
-                className={`text-[2rem] font-[600] text-[#658abb]`}
-              >
+              <p className={`text-[2rem] font-[600] text-[#658abb]`}>
                 {`Want move to ${
                   attachmentFolderData.find((f) => f.id == targetFolder)
                     ?.display_name || ""

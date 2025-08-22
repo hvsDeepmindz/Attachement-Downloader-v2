@@ -535,19 +535,23 @@ const Handlers = () => {
       }
 
       dispatch(setLoading(true));
-
       const res = await MoveToFolderData(targetFolderId, idsToMove);
 
       if (res) {
         toast.success("Attachment(s) moved successfully");
+        dispatch(setSelectedAttachment(""));
+
         const currentFolder = attachmentFolderData.find(
           (f) => f.display_name === selectFolderView
         );
 
         if (currentFolder) {
-          await fetchAttachmentData(currentFolder.display_name);
+          await fetchAttachmentData(
+            currentFolder.display_name,
+            currentPage,
+            itemsPerPage
+          );
         }
-        dispatch(setSelectedAttachment(""));
       } else {
         toast.error("Failed to move attachments");
       }
@@ -631,7 +635,7 @@ const Handlers = () => {
     handleSearchTextChange,
     handleSearchSubmit,
     selectedAttachment,
-    setSelectedAttachment ,
+    setSelectedAttachment,
     handleAttachmentClick,
     handleDownloadAttachments,
     handleDownloadAllAttachments,
