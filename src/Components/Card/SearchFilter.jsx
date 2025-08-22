@@ -1,11 +1,13 @@
 /* eslint-disable no-unused-vars */
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { AttachmentData } from "../../Services/Data/AttachmentData";
 import Handlers from "../../Services/Toolkit/Handlers";
 import ActionBtn from "../Btns/ActionBtn";
 import ViewBtn from "../Btns/ViewBtn";
 import Loader from "../Design/Loader";
+import { Modal } from "antd";
+import { useDispatch } from "react-redux";
 
 const SearchFilter = ({
   pageTitle,
@@ -14,7 +16,6 @@ const SearchFilter = ({
   attachmentView,
   onSearchChange,
   onSearchSubmit,
-  selectedAttachment,
   handleAttachmentSelect,
   searchView,
   attachmentTitle,
@@ -30,7 +31,21 @@ const SearchFilter = ({
     handleDownloadAttachments,
     attachmentFolderData,
     handleMoveToFolder,
+    selectedAttachment,
+    setSelectedAttachment,
   } = Handlers();
+
+  const dispatch = useDispatch();
+  const [modalOpen, setModalOpen] = useState(false);
+  const [targetFolder, setTargetFolder] = useState(null);
+
+  const handleConfirmMove = () => {
+    if (targetFolder) {
+      handleMoveToFolder(targetFolder);
+      setTargetFolder(null);
+    }
+    setModalOpen(false);
+  };
 
   return (
     <>
@@ -72,7 +87,7 @@ const SearchFilter = ({
           <div
             className={`flex justify-end gap-[2rem] max-sm:flex-col max-sm:w-full`}
           >
-            {attachmentView === true && selectedAttachmentIds.length > 0 ? (
+            {attachmentView === true && selectedAttachmentIds.length   > 0 ? (
               <>
                 <div className={`flex items-center gap-[1rem] max-sm:w-full`}>
                   {/* <p className={`text-[#4B4B4B] text-[1.8rem] max-sm:hidden`}>Move to</p> */}
@@ -81,7 +96,8 @@ const SearchFilter = ({
                     value={selectedAttachment}
                     onChange={(e) => {
                       if (e.target.value) {
-                        handleMoveToFolder(e.target.value);
+                        setTargetFolder(e.target.value);
+                        setModalOpen(true);
                       }
                     }}
                     className={`bg-white border-[#765EA5] border-[1px] outline-none px-[2rem] py-[1rem] rounded-xl cursor-pointer font-normal text-[1.8rem] text-[#4D4D4D] max-sm:w-full`}
@@ -96,6 +112,27 @@ const SearchFilter = ({
                 </div>
               </>
             ) : null}
+
+            <Modal
+              open={modalOpen}
+              onOk={handleConfirmMove}
+              onCancel={() => {
+                setTargetFolder(null);
+                setModalOpen(false);
+              }}
+              okText="Yes"
+              cancelText="No"
+            >
+              <p
+                className={`text-[2rem] font-[600] text-[#658abb]`}
+              >
+                {`Want move to ${
+                  attachmentFolderData.find((f) => f.id == targetFolder)
+                    ?.display_name || ""
+                } ?`}
+              </p>
+            </Modal>
+
             {attachmentView === true &&
             selectedAttachmentIds.length > 0 &&
             showUpload ? (

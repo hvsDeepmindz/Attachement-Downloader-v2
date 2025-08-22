@@ -150,20 +150,17 @@ const Handlers = () => {
       let folder =
         folderData.find((f) => f.displayName === selectFolderView) ||
         folderData[0];
-
       if (folderIdOverride) {
         folder = folderData.find((f) => f.id === folderIdOverride) || folder;
       }
-
       if (!folder) {
         dispatch(
           setMessageTableData({ previews: [], totalPages: 0, totalItems: 0 })
         );
+        dispatch(setShowDashboard(true));
         return;
       }
-
       const res = await FolderBasedMessageData(folder.id, perPage, page);
-
       if (res?.previews) {
         dispatch(
           setMessageTableData({
@@ -177,13 +174,13 @@ const Handlers = () => {
         dispatch(
           setMessageTableData({ previews: [], totalPages: 0, totalItems: 0 })
         );
-        dispatch(setShowDashboard(false));
+        dispatch(setShowDashboard(true));
       }
     } catch {
       dispatch(
         setMessageTableData({ previews: [], totalPages: 0, totalItems: 0 })
       );
-      dispatch(setShowDashboard(false));
+      dispatch(setShowDashboard(true));
     } finally {
       dispatch(setLoading(false));
     }
@@ -209,8 +206,10 @@ const Handlers = () => {
             totalItems: 0,
           })
         );
+        dispatch(setShowDashboard(true));
         return;
       }
+
       const res = await FolderBasedAttachmentData(folder.id, perPage, page);
       if (res?.success && res?.attachments) {
         dispatch(
@@ -229,7 +228,7 @@ const Handlers = () => {
             totalItems: 0,
           })
         );
-        dispatch(setShowDashboard(false));
+        dispatch(setShowDashboard(true));
       }
     } catch {
       dispatch(
@@ -239,7 +238,7 @@ const Handlers = () => {
           totalItems: 0,
         })
       );
-      dispatch(setShowDashboard(false));
+      dispatch(setShowDashboard(true));
     } finally {
       dispatch(setLoading(false));
     }
@@ -451,9 +450,9 @@ const Handlers = () => {
     dispatch(setSelectedFolderView(folder.display_name));
     dispatch(setCurrentPage(1));
     await fetchAttachmentData(folder.display_name);
-  };  
+  };
 
-  const handleDownloadAttachments = async (attachmentId) => { 
+  const handleDownloadAttachments = async (attachmentId) => {
     dispatch(setIsDownloadingLoad(true));
     try {
       const idsToDownload = attachmentId
@@ -548,6 +547,7 @@ const Handlers = () => {
         if (currentFolder) {
           await fetchAttachmentData(currentFolder.display_name);
         }
+        dispatch(setSelectedAttachment(""));
       } else {
         toast.error("Failed to move attachments");
       }
@@ -611,7 +611,7 @@ const Handlers = () => {
     isLoading,
     handleLoad,
     handleLogin,
-    handleLogout, 
+    handleLogout,
     isGroupVisible,
     showGroupMenu,
     hideGroupMenu,
@@ -631,6 +631,7 @@ const Handlers = () => {
     handleSearchTextChange,
     handleSearchSubmit,
     selectedAttachment,
+    setSelectedAttachment ,
     handleAttachmentClick,
     handleDownloadAttachments,
     handleDownloadAllAttachments,
@@ -655,6 +656,8 @@ const Handlers = () => {
     folderData,
     attachmentFolderData,
     handleMoveToFolder,
+
+    // API Fetch Func
     fetchDashboardData,
     fetchMessageData,
     fetchSyncData,
