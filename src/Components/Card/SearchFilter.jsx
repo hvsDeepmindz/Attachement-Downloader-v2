@@ -104,7 +104,13 @@ const SearchFilter = ({
                     <option value="">Move To</option>
                     {attachmentFolderData.map((folder) => (
                       <option key={folder.id} value={folder.id}>
-                        {folder.display_name}
+                        {folder.display_name
+                          .split(" ")
+                          .map(
+                            (word) =>
+                              word.charAt(0).toUpperCase() + word.slice(1)
+                          )
+                          .join(" ")}
                       </option>
                     ))}
                   </select>
@@ -132,7 +138,7 @@ const SearchFilter = ({
                         ?.display_name || ""
                     } ?`}
                   </p>
-                </Modal>  
+                </Modal>
               </>
             ) : null}
 
