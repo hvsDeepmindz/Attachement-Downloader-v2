@@ -1,6 +1,8 @@
 import React, { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import Handlers from "../../Services/Toolkit/Handlers";
+import ActionBtn from "../Btns/ActionBtn";
+import ViewBtn from "../Btns/ViewBtn";
 
 const Nav = () => {
   const {
@@ -50,24 +52,24 @@ const Nav = () => {
         />
       </Link>
 
-      <div className="relative">
-        <div
-          ref={buttonRef}
-          className="cursor-pointer flex justify-end bg-[#624D8A] px-[0.8rem] py-[0.5rem] w-auto rounded-full"
-          onClick={() => (isGroupVisible ? hideGroupMenu() : showGroupMenu())}
-        >
-          <p className="text-[2.5rem] text-white">
-            {getInitials(dashboardData?.user_name)}
-          </p>
-        </div>
-        <div
-          ref={menuRef}
-          className={`absolute top-full right-[-6rem] max-sm:right-[-2rem] mt-[2.5rem] w-auto px-[3rem] py-[2rem] rounded-xl bg-white shadow-lg transition-opacity transition-visibility duration-300 ease-in-out ${
-            isGroupVisible ? "opacity-100 visible" : "opacity-0 invisible"
-          }`}
-        >
-          <div className="flex flex-col justify-end items-end">
-            {showDashboard ? (
+      {showDashboard && dashboardData.user_name ? (
+        <div className="relative">
+          <div
+            ref={buttonRef}
+            className="cursor-pointer flex justify-end bg-[#624D8A] px-[0.8rem] py-[0.5rem] w-auto rounded-full"
+            onClick={() => (isGroupVisible ? hideGroupMenu() : showGroupMenu())}
+          >
+            <p className="text-[2.5rem] text-white">
+              {getInitials(dashboardData?.user_name)}
+            </p>
+          </div>
+          <div
+            ref={menuRef}
+            className={`absolute top-full right-[-6rem] max-sm:right-[-2rem] mt-[2.5rem] w-auto px-[3rem] py-[2rem] rounded-xl bg-white shadow-lg transition-opacity transition-visibility duration-300 ease-in-out ${
+              isGroupVisible ? "opacity-100 visible" : "opacity-0 invisible"
+            }`}
+          >
+            <div className="flex flex-col justify-end items-end">
               <button
                 onClick={handleLogout}
                 type="button"
@@ -75,33 +77,34 @@ const Nav = () => {
               >
                 Log out
               </button>
-            ) : (
-              <button
-                onClick={handleLogin}
-                type="button"
-                className="cursor-pointer text-[1.8rem] font-semibold text-[#4D4D4D] outline-none border-none bg-transparent transition-all duration-300 ease-in-out hover:opacity-[0.5]"
-              >
-                Log In
-              </button>
-            )}
-            <div className="flex items-center justify-start gap-[1rem] mt-[2rem]">
-              <div className="bg-[#624D8A] rounded-full px-[1.2rem] py-[1rem]">
-                <p className="text-white text-[2rem] font-normal">
-                  {getInitials(dashboardData?.user_name)}
-                </p>
-              </div>
-              <div className="flex flex-col gap-[0.5rem]">
-                <h2 className="text-[2.5rem] text-[#4D4D4D] font-medium">
-                  {dashboardData?.user_name}
-                </h2>
-                <p className="text-[1.8rem] font-normal text-[#666666]">
-                  {dashboardData?.user_mail}
-                </p>
+              <div className="flex items-center justify-start gap-[1rem] mt-[2rem]">
+                <div className="bg-[#624D8A] rounded-full px-[1.2rem] py-[1rem]">
+                  <p className="text-white text-[2rem] font-normal">
+                    {getInitials(dashboardData?.user_name)}
+                  </p>
+                </div>
+                <div className="flex flex-col gap-[0.5rem]">
+                  <h2 className="text-[2.5rem] text-[#4D4D4D] font-medium">
+                    {dashboardData?.user_name}
+                  </h2>
+                  <p className="text-[1.8rem] font-normal text-[#666666]">
+                    {dashboardData?.user_mail}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      ) : (
+        <div className={`flex justify-end ml-auto w-auto font-[600]`}>
+          <ViewBtn
+            btnTitle={"Login"}
+            btnFunc={() => {
+              handleLogin();
+            }}
+          />
+        </div>
+      )}
     </div>
   );
 };
