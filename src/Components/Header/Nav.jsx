@@ -52,7 +52,7 @@ const Nav = () => {
         />
       </Link>
 
-      {showDashboard && dashboardData.user_name ? (
+      {showDashboard ? (
         <div className="relative">
           <div
             ref={buttonRef}
